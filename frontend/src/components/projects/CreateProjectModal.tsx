@@ -32,7 +32,7 @@ function CreateProjectModal({}: {}) {
 
     // Execute corresponding action based on mode
     if (isEditing) {
-      updateProject(projectToEdit!.id, {
+      updateProject(projectToEdit.id!, {
         name: nameTrimmed,
         description: descriptionTrimmed,
       });
@@ -64,7 +64,7 @@ function CreateProjectModal({}: {}) {
           </h2>
           <span className="text-[9px] text-neon-cyan/40">
             {isEditing
-              ? `ID: ${projectToEdit.id.slice(0, 8)}...`
+              ? `ID: ${projectToEdit.id?.slice(0, 8)}...`
               : "STATUS: PENDING"}
           </span>
         </div>

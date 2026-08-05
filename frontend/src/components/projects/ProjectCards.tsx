@@ -12,9 +12,10 @@ export default function ProjectCards({ project }: { project: Project }) {
   const setActiveProjectId = useProjectStore(
     (state) => state.setActiveProjectId,
   );
+  const projectId = project.id;
   const projectTasks = project.tasks;
   const isActive =
-    project.id === useProjectStore((state) => state.activeProjectId);
+    projectId === useProjectStore((state) => state.activeProjectId);
 
   // Task filtering and completion metrics calculation
   const doneTasks = projectTasks.filter((t) => t.status === "compiled").length;
@@ -49,15 +50,15 @@ export default function ProjectCards({ project }: { project: Project }) {
           "!bg-gray-800 !text-white !px-4 !py-2 !mx-2 !cursor-pointer",
       },
     });
-    if (result.isConfirmed) {
-      deleteProject(project.id);
+    if (result.isConfirmed && projectId) {
+      deleteProject(projectId);
     }
   };
 
   return (
     <div
       onClick={() => {
-        setActiveProjectId(project.id);
+        if (projectId) setActiveProjectId(projectId);
       }}
       className={`p-4 border font-mono cursor-pointer transition-all duration-300 rounded relative overflow-hidden group ${
         isActive
@@ -87,7 +88,7 @@ export default function ProjectCards({ project }: { project: Project }) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              favoriteProject(project.id);
+              if (projectId) favoriteProject(projectId);
             }}
             className={`text-xs cursor-pointer transition-all duration-200 hover:scale-125 ${
               project.isFavorite

@@ -5,6 +5,19 @@ import type { Task, Status } from "../types/Task";
 import { toast } from "sonner";
 import api from "../api/axios";
 
+const normalizeTask = (task: Task): Task => ({
+  ...task,
+  id: task._id || task.id || "",
+  _id: task._id,
+});
+
+const normalizeProject = (project: Project): Project => ({
+  ...project,
+  id: project._id || project.id || "",
+  _id: project._id,
+  tasks: (project.tasks || []).map(normalizeTask),
+});
+
 /**
  * State interface defining state properties and state modification actions
  * for project and task lifecycle management.
@@ -65,7 +78,10 @@ export const useProjectStore = create<ProjectState>()(
         set({ loading: true, error: null });
         try {
           const response = await api.get("/projects");
-          set({ projects: response.data, loading: false });
+          set({
+            projects: response.data.map(normalizeProject),
+            loading: false,
+          });
         } catch (error: any) {
           set({ error: error.response?.data?.message || "An error occurred", loading: false });
         }
@@ -95,11 +111,11 @@ export const useProjectStore = create<ProjectState>()(
       createProject: async (name, description) => {
       try {
         const response = await api.post("/projects", { name, description });
-        const newProjectFromDB = response.data;
+        const newProjectFromDB = normalizeProject(response.data);
 
         set((state) => ({
           projects: [...state.projects, newProjectFromDB],
-          activeProjectId: newProjectFromDB._id || newProjectFromDB.id, // Auto-select created project
+          activeProjectId: newProjectFromDB.id,
         }));
         toast.success("[ SYSTEM_LOG: PROJECT_CREATED ]", {
           description: "The project has been created.",
@@ -116,7 +132,7 @@ export const useProjectStore = create<ProjectState>()(
         await api.delete(`/projects/${id}`);
 
         set((state) => ({
-          projects: state.projects.filter((p) => (p._id || p.id) !== id),
+          projects: state.projects.filter((p) => p.id !== id),
           activeProjectId:
             state.activeProjectId === id ? undefined : state.activeProjectId,
         }));
@@ -135,7 +151,7 @@ export const useProjectStore = create<ProjectState>()(
           await api.put(`/projects/${projectId}`, data);
           set((state) => ({
           projects: state.projects.map((p) =>
-            (p._id || p.id) === projectId ? { ...p, ...data } : p,
+            p.id === projectId ? normalizeProject({ ...p, ...data }) : p,
           ),
         }));
         toast.success("[ SYSTEM_LOG: PROJECT_UPDATED ]", {
@@ -152,7 +168,7 @@ export const useProjectStore = create<ProjectState>()(
       toggleFavoriteProject: (id) => {
         set((state) => ({
           projects: state.projects.map((p) =>
-            (p._id || p.id) === id ? { ...p, isFavorite: !p.isFavorite } : p,
+            p.id === id ? { ...p, isFavorite: !p.isFavorite } : p,
           ),
         }));
       },
@@ -161,11 +177,11 @@ export const useProjectStore = create<ProjectState>()(
       createTask: async (projectId, task) => {
         try {
           const response = await api.post(`/projects/${projectId}/tasks`, task);
-          const newTask = response.data;
+          const newTask = normalizeTask(response.data);
 
           set((state) => ({
           projects: state.projects.map((p) =>
-            (p._id || p.id) === projectId ? 
+            p.id === projectId ?
           { ...p, tasks: [...(p.tasks || []), newTask] }
           : p,
           ),
@@ -185,8 +201,8 @@ export const useProjectStore = create<ProjectState>()(
           await api.delete(`/projects/${projectId}/tasks/${taskId}`);
           set((state) => ({
           projects: state.projects.map((p) =>
-            (p._id || p.id) === projectId
-              ? { ...p, tasks: (p.tasks || []).filter((t) => (t._id || t.id) !== taskId) }
+            p.id === projectId
+              ? { ...p, tasks: (p.tasks || []).filter((t) => t.id !== taskId) }
               : p,
           ),
         }));
@@ -202,11 +218,11 @@ export const useProjectStore = create<ProjectState>()(
           await api.put(`/projects/${projectId}/tasks/${taskId}`, data);
           set((state) => ({
             projects: state.projects.map((p) =>
-              (p._id || p.id) === projectId
+              p.id === projectId
                 ? {
                     ...p,
                     tasks: (p.tasks || []).map((t) =>
-                      (t._id || t.id) === taskId ? { ...t, ...data } : t,
+                      t.id === taskId ? normalizeTask({ ...t, ...data }) : t,
                     ),
                   }
                 : p,
@@ -224,7 +240,7 @@ export const useProjectStore = create<ProjectState>()(
         projects: state.projects.map((p) => ({
           ...p,
           tasks: (p.tasks || []).map((t) =>
-            (t._id || t.id) === taskId ? { ...t, status } : t
+            t.id === taskId ? { ...t, status } : t
           ),
         })),
       }));
