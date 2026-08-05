@@ -1,0 +1,15 @@
+{
+	"name": "minijira-root",
+	"private": true,
+	"scripts": {
+		"dev": "concurrently \"pnpm --dir backend dev\" \"pnpm --dir frontend dev\"",
+		"dev:frontend": "pnpm --dir frontend dev",
+		"dev:backend": "pnpm --dir backend dev"
+	},
+	"dependencies": {
+		"axios": "^1.19.0"
+	},
+	"devDependencies": {
+		"concurrently": "^10.0.4"
+	}
+}
