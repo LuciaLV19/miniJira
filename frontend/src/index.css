@@ -1,0 +1,59 @@
+@import "tailwindcss";
+@import "sweetalert2/dist/sweetalert2.min.css";
+
+@theme {
+    /* Fondos oscuros */
+    --color-cyber-bg: #0a0b10;
+    --color-cyber-card: #121420;
+
+    /* Colores de neón */
+    --color-neon-cyan: #00f0ff;
+    --color-neon-magenta: #ff007f;
+    --color-neon-green: #39ff14;
+
+    /* Fuentes */
+    --font-terminal: "Courier New", Courier, monospace;
+
+    /* Brillos de neón para bordes (Shadows) */
+    --shadow-neon-cyan: 0 0 8px #00f0ff, inset 0 0 4px #00f0ff;
+    --shadow-neon-magenta: 0 0 8px #ff007f, inset 0 0 4px #ff007f;
+}
+
+/* --- STYLING DE LA BARRA DE SCROLL CYBERPUNK --- */
+
+/* 1. Contenedor general del scroll (el fondo o track) */
+::-webkit-scrollbar {
+    width: 6px;
+    /* Ancho para el scroll vertical */
+    height: 6px;
+    /* Alto para el scroll horizontal */
+}
+
+/* 2. El fondo por donde se mueve la barra */
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    /* Un negro sutil transparente */
+    border-radius: 4px;
+}
+
+/* 3. La barra que arrastras (el thumb) */
+::-webkit-scrollbar-thumb {
+    background: rgba(236, 72, 153, 0.3);
+    /* Tu rosa neón/magenta con opacidad baja */
+    border-radius: 4px;
+    border: 1px solid rgba(236, 72, 153, 0.1);
+    transition: background 0.3s ease;
+}
+
+/* 4. Cuando el usuario pasa el ratón por encima del scroll */
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(236, 72, 153, 0.7);
+    /* Se enciende el neón al hacer hover */
+    box-shadow: 0 0 8px rgba(236, 72, 153, 0.5);
+    /* Efecto brillo */
+}
+
+/* 5. Esquina donde se juntan el scroll horizontal y vertical */
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
