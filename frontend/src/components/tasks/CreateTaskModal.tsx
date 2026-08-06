@@ -22,6 +22,8 @@ export default function CreateTaskModal() {
     if (!activeProjectId) return undefined;
     return state.projects.find((p) => p.id === activeProjectId);
   });
+  const projectId = taskFromProject?.id;
+  const taskId = taskToEdit?.id;
 
   // Mocked list of available team members for task assignment
   const TEAM_MEMBERS = [
@@ -56,8 +58,13 @@ export default function CreateTaskModal() {
     setError("");
 
     if (isEditMode) {
+      if (!projectId || !taskId) {
+        setError("Unable to resolve the current task or project ID.");
+        return;
+      }
+
       // Update existing task
-      updateTask(taskFromProject!.id, taskToEdit!.id, {
+      updateTask(projectId, taskId, {
         title: taskNameTrimmed,
         description: taskDescriptionTrimmed,
         priority: taskPriority,
@@ -66,8 +73,13 @@ export default function CreateTaskModal() {
         assignee: taskAssignee,
       });
     } else {
+      if (!projectId) {
+        setError("No active project selected.");
+        return;
+      }
+
       // Create new task
-      addTask(taskFromProject!.id, {
+      addTask(projectId, {
         id: uuidv4(),
         title: taskNameTrimmed,
         description: taskDescriptionTrimmed,

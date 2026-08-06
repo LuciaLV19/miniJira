@@ -42,6 +42,7 @@ export default function TaskCard({
   const deleteTask = useProjectStore((state) => state.deleteTask);
   const editTask = useProjectStore((state) => state.editTask);
   const activeProjectId = useProjectStore((state) => state.activeProjectId);
+  const taskId = id || _id;
 
   // Local state
   const [isDragging, setIsDragging] = useState(false);
@@ -92,7 +93,7 @@ export default function TaskCard({
   const handleEditTask = () => {
     setIsMenuOpen(false);
     editTask({
-      id: id || _id || "",
+      id: taskId || "",
       title,
       description,
       status,
@@ -113,7 +114,7 @@ export default function TaskCard({
   return (
     <div
       draggable={true}
-      onDragStart={(e) => handleDragStart(e, id || _id || "")}
+      onDragStart={(e) => handleDragStart(e, taskId || "")}
       onDragEnd={() => setIsDragging(false)}
       className={`group bg-black p-3 rounded border border-white/10 hover:border-neon-cyan/30 transition-all duration-200 cursor-grab active:cursor-grabbing flex flex-col justify-between min-h-35 font-mono shadow-[0_4px_12px_rgba(0,0,0,0.6)] ${
         isDragging ? "opacity-20" : ""
@@ -150,7 +151,9 @@ export default function TaskCard({
                 </button>
                 <button
                   onClick={() => {
-                    deleteTask(activeProjectId!, id || _id || "");
+                    if (activeProjectId && taskId) {
+                      deleteTask(activeProjectId, taskId);
+                    }
                   }}
                   className="hover:text-neon-cyan transition-colors cursor-pointer font-bold text-[10px] rounded leading-none"
                 >
