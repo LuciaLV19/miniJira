@@ -1,12 +1,19 @@
 import { useState } from "react";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
+import api from "../../api/axios";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    // Basic validation
+    if (!email.trim() || !password.trim()) return;
     // Your login logic here
+    const response = await api.post("/auth/login", { email, password });
+    console.log("Login response:", response.data);
   };
 
   return (
@@ -24,7 +31,7 @@ export default function LoginForm() {
           <input
             id="email"
             type="email"
-            placeholder="user@cyber.net"
+            onChange={(e) => setEmail(e.target.value)}
             className="w-full bg-[#0a0d14] border border-cyan-500/30 rounded-lg pl-9 pr-4 py-2 text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all"
           />
         </div>
@@ -43,7 +50,7 @@ export default function LoginForm() {
           <input
             id="password"
             type={showPassword ? "text" : "password"}
-            placeholder="••••••••"
+            onChange={(e) => setPassword(e.target.value)}
             className="w-full bg-[#0a0d14] border border-cyan-500/30 rounded-lg pl-9 pr-10 py-2 text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all"
           />
           <button

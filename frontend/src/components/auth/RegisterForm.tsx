@@ -1,12 +1,24 @@
 import { useState } from "react";
 import { Eye, EyeOff, Lock, Mail, User } from "lucide-react";
+import api from "../../api/axios";
 
 export default function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    // Basic validation
+    if (!username.trim() || !email.trim() || !password.trim()) return;
     // Your register logic here
+    const response = await api.post("/auth/register", {
+      username,
+      email,
+      password,
+    });
+    console.log("Register response:", response.data);
   };
 
   return (
@@ -24,7 +36,7 @@ export default function RegisterForm() {
           <input
             id="username"
             type="text"
-            placeholder="cyber_ghost"
+            onChange={(e) => setUsername(e.target.value)}
             className="w-full bg-[#0a0d14] border border-cyan-500/30 rounded-lg pl-9 pr-4 py-2 text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all"
           />
         </div>
@@ -43,7 +55,7 @@ export default function RegisterForm() {
           <input
             id="reg-email"
             type="email"
-            placeholder="user@cyber.net"
+            onChange={(e) => setEmail(e.target.value)}
             className="w-full bg-[#0a0d14] border border-cyan-500/30 rounded-lg pl-9 pr-4 py-2 text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all"
           />
         </div>
@@ -62,7 +74,7 @@ export default function RegisterForm() {
           <input
             id="reg-password"
             type={showPassword ? "text" : "password"}
-            placeholder="••••••••"
+            onChange={(e) => setPassword(e.target.value)}
             className="w-full bg-[#0a0d14] border border-cyan-500/30 rounded-lg pl-9 pr-10 py-2 text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all"
           />
           <button
