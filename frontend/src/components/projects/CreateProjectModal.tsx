@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useProjectStore } from "../../store/useProjectStore";
 
-function CreateProjectModal({}: {}) {
+function CreateProjectModal() {
   // Project Store Hooks
   const close = useProjectStore((state) => state.closeProjectModal);
   const createProject = useProjectStore((state) => state.createProject);

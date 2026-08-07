@@ -82,8 +82,9 @@ export const useProjectStore = create<ProjectState>()(
             projects: response.data.map(normalizeProject),
             loading: false,
           });
-        } catch (error: any) {
-          set({ error: error.response?.data?.message || "An error occurred", loading: false });
+        } catch (error: unknown) {
+          console.error("Error fetching projects:", error);
+          set({ error: "An error occurred", loading: false });
         }
       },
 
@@ -120,7 +121,8 @@ export const useProjectStore = create<ProjectState>()(
         toast.success("[ SYSTEM_LOG: PROJECT_CREATED ]", {
           description: "The project has been created.",
         });
-      } catch (error: any) {
+      } catch (error: unknown) {
+        console.error("Error creating project:", error);
         toast.error("[ SYSTEM_LOG: PROJECT_CREATION_FAILED ]", {
           description: "The project could not be created.",
         });
@@ -139,7 +141,8 @@ export const useProjectStore = create<ProjectState>()(
         toast.error("[ SYSTEM_LOG: PROJECT_DELETED ]", {
           description: "The project has been deleted.",
         });
-        } catch (error: any){
+        } catch (error: unknown){
+          console.error("Error deleting project:", error);
           toast.error("[SYSTEM_LOG: PROJECT_DELETED_FAILED]", {
           description: "The project could not be deleted."
           });
@@ -158,7 +161,8 @@ export const useProjectStore = create<ProjectState>()(
           description: "The project has been updated.",
         });
         }        
-         catch (error: any) {
+         catch (error: unknown) {
+          console.error("Error updating project:", error);
           toast.error("[ SYSTEM_LOG: PROJECT_UPDATE_FAILED ]", {
             description: "The project could not be updated.",
           });
@@ -189,7 +193,8 @@ export const useProjectStore = create<ProjectState>()(
         toast.success("[ SYSTEM_LOG: TASK_CREATED ]", {
           description: "The task has been created.",
         });
-        } catch (error: any) {
+        } catch (error: unknown) {
+          console.error("Error creating task:", error);
           toast.error("[ SYSTEM_LOG: TASK_CREATION_FAILED ]", {
             description: "The task could not be created.",
           });
@@ -206,7 +211,8 @@ export const useProjectStore = create<ProjectState>()(
               : p,
           ),
         }));
-        } catch (error: any) {
+        } catch (error: unknown) {
+          console.error("Error deleting task:", error);
           toast.error("[ SYSTEM_LOG: TASK_DELETION_FAILED ]", {
             description: "The task could not be deleted.",
           });
@@ -228,7 +234,8 @@ export const useProjectStore = create<ProjectState>()(
                 : p,
             ),
           }));
-        } catch (error: any) {
+        } catch (error: unknown) {
+          console.error("Error updating task:", error);
           toast.error("[ SYSTEM_LOG: TASK_UPDATE_FAILED ]", {
             description: "The task could not be updated.",
           });
@@ -247,7 +254,8 @@ export const useProjectStore = create<ProjectState>()(
 
       try {
         await api.put(`/tasks/${taskId}`, { status });
-      } catch (error: any) {
+      } catch (error: unknown) {
+        console.error("Error updating task status:", error);
         toast.error("[ SYSTEM_LOG: TASK_MOVE_FAILED ]", {
           description: "Could not update task status on the server.",
         });

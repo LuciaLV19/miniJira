@@ -1,17 +1,22 @@
 import { Routes, Route } from "react-router-dom";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Home from "./components/views/Home";
 import ProjectView from "./components/views/ProjectView";
 import Layout from "./components/layouts/Layout";
 import { Toaster } from "sonner";
+import LoginPage from "./components/views/LoginPage";
 
 function App() {
   return (
     <>
       <Routes>
-        <Route element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="project/:id" element={<ProjectView />} />
+        <Route element={<ProtectedRoute />}>
+          <Route element={<Layout />}>
+            <Route index element={<Home />} />
+            <Route path="project/:id" element={<ProjectView />} />
+          </Route>
         </Route>
+        <Route path="/login" element={<LoginPage />} />
         <Route
           path="*"
           element={<div className="p-6">Ruta no encontrada</div>}
