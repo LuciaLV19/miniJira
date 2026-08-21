@@ -52,9 +52,10 @@ export default function TaskCard({
 
   // Dynamic styling based on task priority level
   const priorityColors: Record<Priority, string> = {
-    high: "bg-red-500/10 text-red-400 border-red-500/30",
-    medium: "bg-amber-500/10 text-amber-400 border-amber-500/30",
-    low: "bg-neon-cyan/10 text-neon-cyan border-neon-cyan/30",
+    URGENT: "bg-pink-500/10 text-pink-400 border-pink-500/30",
+    HIGH: "bg-red-500/10 text-red-400 border-red-500/30",
+    MEDIUM: "bg-amber-500/10 text-amber-400 border-amber-500/30",
+    LOW: "bg-neon-cyan/10 text-neon-cyan border-neon-cyan/30",
   };
 
   /**

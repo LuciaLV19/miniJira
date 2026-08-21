@@ -52,7 +52,7 @@ interface ProjectState {
   deleteTask: (projectId: string, taskId: string) => Promise<void>;
   updateTask: (projectId: string, taskId: string, data: Partial<Task>) => Promise<void>;
   editTask: (task: Task) => void;
-  updateColumn: (taskId: string, status: Status) => Promise<void>;
+  updateColumn: (projectId: string, taskId: string, status: Status) => Promise<void>;
 
   fetchProjects: () => Promise<void>;
 }
@@ -242,7 +242,11 @@ export const useProjectStore = create<ProjectState>()(
         }
       },
 
-      updateColumn: async (taskId, status) => {
+      updateColumn: async (projectId, taskId, status) => {
+          console.log("projectId:", projectId);
+  console.log("taskId:", taskId);
+  console.log("status:", status);
+
       set((state) => ({
         projects: state.projects.map((p) => ({
           ...p,
@@ -253,7 +257,7 @@ export const useProjectStore = create<ProjectState>()(
       }));
 
       try {
-        await api.put(`/tasks/${taskId}`, { status });
+        await api.put(`/projects/${projectId}/tasks/${taskId}`, { status });
       } catch (error: unknown) {
         console.error("Error updating task status:", error);
         toast.error("[ SYSTEM_LOG: TASK_MOVE_FAILED ]", {

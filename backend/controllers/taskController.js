@@ -2,39 +2,32 @@ import Task from "../models/Task.js";
 
 // @desc    Get all tasks for the logged in user
 // @route   GET /api/tasks
-export const getTasks = async (req, res) => {
+export const getTasks = async (req, res, next) => {
   try {
-    const tasks = await Task.find({ createdBy: req.user._id })
+    const tasks = await Task.find({ project: req.params.projectId })
       .populate("assignedTo", "name email avatar")
       .populate("project", "name")
       .sort({ createdAt: -1 });
 
     res.json(tasks);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Failed to fetch tasks", error: error.message });
+    next(error);
   }
 };
 
 // @desc    Create a new task
 // @route   POST /api/tasks
-export const createTask = async (req, res) => {
+export const createTask = async (req, res, next) => {
   try {
-    const { title, description, status, priority, project, tags, assignedTo } =
-      req.body;
+    const { title, description, status, priority, tags, assignedTo } = req.body;
 
-    if (!title || !project) {
-      return res
-        .status(400)
-        .json({ message: "Title and project are required fields" });
-    }
+    const project = req.params.projectId;
 
     const task = new Task({
       title,
       description,
-      status: status || "todo",
-      priority: priority || "medium",
+      status,
+      priority,
       project,
       tags: tags || [],
       assignedTo: assignedTo || null,
@@ -44,17 +37,15 @@ export const createTask = async (req, res) => {
     const createdTask = await task.save();
     res.status(201).json(createdTask);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Failed to create task", error: error.message });
+    next(error);
   }
 };
 
 // @desc    Update a task (e.g., move column/status)
-// @route   PUT /api/tasks/:id
-export const updateTask = async (req, res) => {
+// @route   PUT /api/projects/:projectId/tasks/:taskId
+export const updateTask = async (req, res, next) => {
   try {
-    const task = await Task.findById(req.params.id);
+    const task = await Task.findById(req.params.taskId);
 
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
@@ -62,27 +53,29 @@ export const updateTask = async (req, res) => {
 
     if (task.createdBy.toString() !== req.user._id.toString()) {
       return res
-        .status(401)
+        .status(403)
         .json({ message: "Not authorized to update this task" });
     }
 
-    const updatedTask = await Task.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
+    const updatedTask = await Task.findByIdAndUpdate(
+      req.params.taskId,
+      req.body,
+      {
+        new: true,
+      },
+    );
 
     res.json(updatedTask);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Failed to update task", error: error.message });
+    next(error);
   }
 };
 
 // @desc    Delete a task
-// @route   DELETE /api/tasks/:id
-export const deleteTask = async (req, res) => {
+// @route   DELETE /api/tasks/:taskId
+export const deleteTask = async (req, res, next) => {
   try {
-    const task = await Task.findById(req.params.id);
+    const task = await Task.findById(req.params.taskId);
 
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
@@ -90,15 +83,13 @@ export const deleteTask = async (req, res) => {
 
     if (task.createdBy.toString() !== req.user._id.toString()) {
       return res
-        .status(401)
+        .status(403)
         .json({ message: "Not authorized to delete this task" });
     }
 
     await task.deleteOne();
     res.json({ message: "Task removed successfully" });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Failed to delete task", error: error.message });
+    next(error);
   }
 };

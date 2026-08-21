@@ -39,7 +39,7 @@ export default function CreateTaskModal() {
     taskToEdit?.description ?? "",
   );
   const [taskPriority, setTaskPriority] = useState<Priority>(
-    taskToEdit?.priority ?? "low",
+    taskToEdit?.priority ?? "LOW",
   );
   const [taskCategory, setTaskCategory] = useState(taskToEdit?.category ?? "");
   const [taskDueDate, setTaskDueDate] = useState(taskToEdit?.dueDate ?? "");
@@ -83,7 +83,7 @@ export default function CreateTaskModal() {
         id: uuidv4(),
         title: taskNameTrimmed,
         description: taskDescriptionTrimmed,
-        status: "backlog",
+        status: "BACKLOG",
         priority: taskPriority,
         category: taskCategory,
         dueDate: taskDueDate,
@@ -155,9 +155,10 @@ export default function CreateTaskModal() {
                 value={taskPriority}
                 onChange={(e) => setTaskPriority(e.target.value as Priority)}
               >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
+                <option value="low">LOW</option>
+                <option value="medium">MEDIUM</option>
+                <option value="high">HIGH</option>
+                <option value="urgent">URGENT</option>
               </select>
 
               <label

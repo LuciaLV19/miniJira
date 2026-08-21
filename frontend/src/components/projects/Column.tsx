@@ -14,6 +14,7 @@ export default function Column({
 }) {
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const updateColumn = useProjectStore((state) => state.updateColumn);
+  const projectId = useProjectStore((state) => state.activeProjectId);
 
   // Drag over handler to allow dropping and trigger visual hover state
   const dragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -35,7 +36,7 @@ export default function Column({
     e.preventDefault();
     const taskId = e.dataTransfer.getData("text/plain");
     setIsDraggingOver(false);
-    updateColumn(taskId, newColumn);
+    updateColumn(projectId!, taskId, newColumn);
   };
 
   return (

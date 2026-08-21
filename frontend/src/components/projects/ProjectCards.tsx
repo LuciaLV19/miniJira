@@ -18,7 +18,7 @@ export default function ProjectCards({ project }: { project: Project }) {
     projectId === useProjectStore((state) => state.activeProjectId);
 
   // Task filtering and completion metrics calculation
-  const doneTasks = projectTasks.filter((t) => t.status === "compiled").length;
+  const doneTasks = projectTasks.filter((t) => t.status === "COMPILED").length;
   const progressBar =
     projectTasks.length > 0
       ? Math.floor((doneTasks / projectTasks.length) * 100)

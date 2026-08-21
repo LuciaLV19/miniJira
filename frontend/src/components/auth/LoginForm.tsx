@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import api from "../../api/axios";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -13,7 +15,9 @@ export default function LoginForm() {
     if (!email.trim() || !password.trim()) return;
     // Your login logic here
     const response = await api.post("/auth/login", { email, password });
-    console.log("Login response:", response.data);
+    localStorage.setItem("token", response.data.token);
+    // Redirect to dashboard after successful login
+    navigate("/");
   };
 
   return (

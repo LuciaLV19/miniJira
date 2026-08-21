@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Eye, EyeOff, Lock, Mail, User } from "lucide-react";
 import api from "../../api/axios";
+import { useNavigate } from "react-router-dom";
 
 export default function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -8,6 +9,7 @@ export default function RegisterForm() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     // Basic validation
@@ -18,7 +20,8 @@ export default function RegisterForm() {
       email,
       password,
     });
-    console.log("Register response:", response.data);
+    localStorage.setItem("token", response.data.token);
+    navigate("/"); // Redirect to dashboard after successful registration
   };
 
   return (
