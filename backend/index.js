@@ -4,8 +4,20 @@ import cors from "cors";
 import dotenv from "dotenv";
 import authRoutes from "./routes/authRoutes.js";
 import projectRoutes from "./routes/projectRoutes.js";
-import taskRoutes from "./routes/taskRoutes.js";
 import { errorHandler } from "./middleware/errorMiddleware.js";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import mongoSanitize from "express-mongo-sanitize";
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: {
+    message: "Too many requests from this IP, please try again later.",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 dotenv.config();
 
@@ -14,11 +26,16 @@ const app = express();
 // Middleware
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
     credentials: true,
   }),
 );
 app.use(express.json());
+
+// Security
+app.use(helmet());
+app.use("/api", limiter);
+app.use(mongoSanitize());
 
 // API Routes
 app.use("/api/auth", authRoutes);
