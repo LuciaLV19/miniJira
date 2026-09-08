@@ -6,7 +6,9 @@ export default defineConfig({
   plugins: [react()],
   test: {
     globals: true,
-    environment: "jsdom",
+    environment: "happy-dom",
+    pool: "forks",
+    singleFork: true,
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html", "lcov"],
