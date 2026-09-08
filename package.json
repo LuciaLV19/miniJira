@@ -11,9 +11,9 @@
 		"dev:frontend": "pnpm --dir frontend dev",
 		"dev:backend": "pnpm --dir backend dev",
 		"lint": "pnpm --dir frontend lint && pnpm --dir backend lint",
-		"typecheck": "pnpm --dir frontend typecheck",
+		"typecheck": "pnpm --filter frontend typecheck",
 		"test": "pnpm --dir frontend test && pnpm --dir backend test",
-		"check-types": "pnpm --dir frontend typecheck"
+		"check-types": "pnpm --filter frontend typecheck"
 	},
 	"dependencies": {
 		"axios": "^1.19.0",

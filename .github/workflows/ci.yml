@@ -1,6 +1,5 @@
 name: Continuous Integration
 
-# Triggers on every PUSH or PULL REQUEST targeting core branches
 on:
   push:
     branches: [main, master, dev]
@@ -13,57 +12,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout repository code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Setup PNPM package manager on the virtual machine
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9
 
-      # 3. Setup Node.js runtime environment with PNPM caching enabled
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: "pnpm"
 
-      # 4. Install all monorepo dependencies
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # 5. Verify TypeScript types
-      - name: Check types
-        run: pnpm run check-types
+      - name: Check types (Frontend)
+        run: pnpm --filter frontend exec tsc --noEmit
 
-      # 6. Execute automated unit and integration tests with coverage
-      - name: Run Vitest tests with coverage
-        run: pnpm test -- --coverage
-
-      # 7. Build project to verify syntax and TypeScript compilation
       - name: Build project
         run: pnpm run build --if-present
 
-      # 8. Upload coverage report to Codecov
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          fail_ci_if_error: false
-
-      # 9. Upload build output artifacts
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-dist
-          path: dist
-          if-no-files-found: ignore
-
-      # 10. Upload test coverage artifacts
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: coverage
-          if-no-files-found: ignore
+      - name: Run Vitest tests
+        run: pnpm test
