@@ -1,4 +1,5 @@
 import Task from "../models/Task.js";
+import Project from "../models/Project.js";
 
 // @desc    Get all tasks for the logged in user
 // @route   GET /api/tasks
@@ -35,6 +36,10 @@ export const createTask = async (req, res, next) => {
     });
 
     const createdTask = await task.save();
+    await Project.findByIdAndUpdate(project, {
+      $push: { tasks: createdTask._id },
+    });
+
     res.status(201).json(createdTask);
   } catch (error) {
     next(error);
@@ -86,6 +91,10 @@ export const deleteTask = async (req, res, next) => {
         .status(403)
         .json({ message: "Not authorized to delete this task" });
     }
+
+    await Project.findByIdAndUpdate(task.project, {
+      $pull: { tasks: task._id },
+    });
 
     await task.deleteOne();
     res.json({ message: "Task removed successfully" });

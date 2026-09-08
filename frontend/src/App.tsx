@@ -5,6 +5,7 @@ import ProjectView from "./components/views/ProjectView";
 import Layout from "./components/layouts/Layout";
 import { Toaster } from "sonner";
 import LoginPage from "./components/views/LoginPage";
+import UserProfile from "./components/views/UserProfile";
 
 function App() {
   return (
@@ -13,7 +14,8 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>
             <Route index element={<Home />} />
-            <Route path="project/:id" element={<ProjectView />} />
+            <Route path="project/:projectId" element={<ProjectView />} />
+            <Route path="user" element={<UserProfile />} />
           </Route>
         </Route>
         <Route path="/login" element={<LoginPage />} />

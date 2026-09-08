@@ -5,9 +5,11 @@ import Task from "../models/Task.js";
 // @route   GET /api/projects
 export const getProjects = async (req, res, next) => {
   try {
-    const projects = await Project.find({ createdBy: req.user._id }).sort({
-      createdAt: -1,
-    });
+    const projects = await Project.find({ createdBy: req.user._id })
+      .populate("tasks")
+      .sort({
+        createdAt: -1,
+      });
     res.json(projects);
   } catch (error) {
     next(error);

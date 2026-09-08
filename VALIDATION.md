@@ -88,7 +88,7 @@ export default router;
 - **title**: Requerido, máximo 200 caracteres
 - **description**: Opcional, máximo 1000 caracteres
 - **status**: Enum (TODO, IN_PROGRESS, DONE), default: TODO
-- **priority**: Enum (LOW, MEDIUM, HIGH), default: MEDIUM (opcional)
+- **priority**: Enum (LOW, MEDIUM, HIGH, URGENT), default: LOW (opcional)
 
 ## Error Handling
 

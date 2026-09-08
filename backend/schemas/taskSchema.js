@@ -6,7 +6,10 @@ export const createTaskSchema = z.object({
   status: z
     .enum(["BACKLOG", "TODO", "IN_PROGRESS", "TESTING", "COMPILED"])
     .default("BACKLOG"),
-  priority: z.enum(["LOW", "MEDIUM", "HIGH, URGENT"]).default("LOW").optional(),
+  priority: z
+    .enum(["LOW", "MEDIUM", "HIGH", "URGENT"])
+    .default("LOW")
+    .optional(),
 });
 
 export const updateTaskSchema = z.object({
@@ -15,5 +18,5 @@ export const updateTaskSchema = z.object({
   status: z
     .enum(["BACKLOG", "TODO", "IN_PROGRESS", "TESTING", "COMPILED"])
     .optional(),
-  priority: z.enum(["LOW", "MEDIUM", "HIGH, URGENT"]).optional(),
+  priority: z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]).optional(),
 });
