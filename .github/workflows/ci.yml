@@ -36,7 +36,7 @@ jobs:
 
       # 5. Verify TypeScript types
       - name: Check types
-        run: pnpm run check-types --if-present
+        run: pnpm run check-types
 
       # 6. Execute automated unit and integration tests with coverage
       - name: Run Vitest tests with coverage
