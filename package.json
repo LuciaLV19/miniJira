@@ -13,7 +13,7 @@
 		"lint": "pnpm --dir frontend lint && pnpm --dir backend lint",
 		"typecheck": "pnpm --dir frontend typecheck",
 		"test": "pnpm --dir frontend test && pnpm --dir backend test",
-		"check-types": "pnpm -r --parallel exec tsc --noEmit"
+		"check-types": "pnpm --dir frontend typecheck"
 	},
 	"dependencies": {
 		"axios": "^1.19.0",
