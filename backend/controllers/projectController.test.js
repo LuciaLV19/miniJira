@@ -8,6 +8,8 @@ describe("projectController", () => {
   let req, res, next;
 
   beforeEach(() => {
+    vi.restoreAllMocks();
+    vi.clearAllMocks();
     req = {
       body: {},
       user: { _id: "user-123", id: "user-123" },

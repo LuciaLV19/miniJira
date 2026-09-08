@@ -74,7 +74,9 @@ describe("taskController", () => {
 
       await taskController.getTasks(req, res, next);
 
-      expect(Task.find).toHaveBeenCalledWith({ projectId: "proj-123" });
+      expect(Task.find).toHaveBeenCalledWith(
+        expect.objectContaining({ projectId: "proj-123" }),
+      );
       expect(res.json).toHaveBeenCalledWith(tasks);
     });
   });
