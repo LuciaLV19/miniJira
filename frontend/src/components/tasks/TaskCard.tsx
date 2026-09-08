@@ -1,48 +1,19 @@
 import { useState, useRef, useEffect } from "react";
-import type { Priority, Status } from "../../types/Task";
+import type { Task, Priority } from "../../types/Task";
 import { useProjectStore } from "../../store/useProjectStore";
-
-type TaskCardProps = {
-  id?: string;
-  _id?: string;
-  title: string;
-  description: string;
-  status: Status;
-  priority: Priority;
-  createdAt: string;
-  commentsCount: number;
-  dueDate?: string;
-  category?: string;
-  assignee?: {
-    id?: string;
-    _id?: string;
-    name: string;
-    initials: string;
-  };
-};
+import { useSettingsStore } from "../../store/useSettingsStore"; // Ajusta la ruta a tu store
 
 /**
  * TaskCard component renders an individual task item within a Kanban column.
  * Displays key details including priority, assignee, category, due dates, and comment counts.
  */
-export default function TaskCard({
-  id,
-  _id,
-  title,
-  description,
-  status,
-  priority,
-  createdAt,
-  commentsCount,
-  dueDate,
-  assignee,
-  category,
-}: TaskCardProps) {
+export default function TaskCard({ task }: { task: Task }) {
   // Zustand store state selectors
   const deleteTask = useProjectStore((state) => state.deleteTask);
   const editTask = useProjectStore((state) => state.editTask);
   const activeProjectId = useProjectStore((state) => state.activeProjectId);
-  const taskId = id || _id;
+  const taskId = task.id || task._id;
+  const { compactKanban } = useSettingsStore();
 
   // Local state
   const [isDragging, setIsDragging] = useState(false);
@@ -52,9 +23,10 @@ export default function TaskCard({
 
   // Dynamic styling based on task priority level
   const priorityColors: Record<Priority, string> = {
-    high: "bg-red-500/10 text-red-400 border-red-500/30",
-    medium: "bg-amber-500/10 text-amber-400 border-amber-500/30",
-    low: "bg-neon-cyan/10 text-neon-cyan border-neon-cyan/30",
+    URGENT: "bg-pink-500/10 text-pink-400 border-pink-500/30",
+    HIGH: "bg-red-500/10 text-red-400 border-red-500/30",
+    MEDIUM: "bg-amber-500/10 text-amber-400 border-amber-500/30",
+    LOW: "bg-neon-cyan/10 text-neon-cyan border-neon-cyan/30",
   };
 
   /**
@@ -94,15 +66,15 @@ export default function TaskCard({
     setIsMenuOpen(false);
     editTask({
       id: taskId || "",
-      title,
-      description,
-      status,
-      priority,
-      createdAt,
-      commentsCount,
-      dueDate,
-      category,
-      assignee,
+      title: task.title,
+      description: task.description,
+      status: task.status,
+      priority: task.priority,
+      createdAt: task.createdAt,
+      commentsCount: task.commentsCount,
+      dueDate: task.dueDate,
+      category: task.category,
+      assignee: task.assignee,
     });
   };
 
@@ -118,16 +90,16 @@ export default function TaskCard({
       onDragEnd={() => setIsDragging(false)}
       className={`group bg-black p-3 rounded border border-white/10 hover:border-neon-cyan/30 transition-all duration-200 cursor-grab active:cursor-grabbing flex flex-col justify-between min-h-35 font-mono shadow-[0_4px_12px_rgba(0,0,0,0.6)] ${
         isDragging ? "opacity-20" : ""
-      }`}
+      } ${compactKanban ? "p-2 space-y-1 text-xs" : "p-4 space-y-3 text-sm"} `}
     >
       {/* 1. Header: Category Tag & Priority Badge */}
       <div>
         <div className="relative flex items-center justify-between gap-2 mb-2">
           <span
             className="text-[9px] font-bold tracking-widest text-white/40 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded uppercase truncate max-w-35"
-            title={category || "General"}
+            title={task.category || "General"}
           >
-            // {category || "General"}
+            // {task.category || "General"}
           </span>
           <div ref={menuRef}>
             <button
@@ -168,22 +140,22 @@ export default function TaskCard({
           <div className="flex flex-col items-start">
             {/* 2. Content: Title & Brief Description */}
             <h4 className="text-xs font-bold text-white/90 line-clamp-1 group-hover:text-neon-cyan transition-colors mb-1 leading-snug uppercase">
-              {title}
+              {task.title}
             </h4>
 
-            {description && (
+            {task.description && (
               <p className="text-[8px] text-white/50 line-clamp-2 leading-relaxed mb-2 font-sans italic">
-                {description.length > 30
-                  ? `${description.slice(0, 30).trim()}...`
-                  : description}
+                {task.description.length > 30
+                  ? `${task.description.slice(0, 30).trim()}...`
+                  : task.description}
               </p>
             )}
           </div>
           <div className="flex items-end gap-2">
             <span
-              className={`text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-widest ${priorityColors[priority]}`}
+              className={`text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-widest ${priorityColors[task.priority]}`}
             >
-              {priority}
+              {task.priority}
             </span>
           </div>
         </div>
@@ -197,23 +169,23 @@ export default function TaskCard({
         <div className="flex items-center justify-between text-white/40 text-[10px]">
           {/* Left section: Due Date & Comments Counter */}
           <div className="flex items-center gap-2">
-            {dueDate && (
+            {task.dueDate && (
               <div
                 className="flex items-center gap-1 text-[9px] font-medium text-white/70 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded"
                 title="Due date"
               >
-                <span>DUE: {formatDate(dueDate)?.toUpperCase()}</span>
+                <span>DUE: {formatDate(task.dueDate)?.toUpperCase()}</span>
               </div>
             )}
 
             {/* Strict comments counter */}
-            {commentsCount > 0 && (
+            {task.commentsCount > 0 && (
               <div
                 className="flex items-center gap-1 text-neon-cyan bg-neon-cyan/5 border border-neon-cyan/20 px-1.5 py-0.5 rounded text-[9px]"
-                title={`${commentsCount} comments`}
+                title={`${task.commentsCount} comments`}
               >
                 <span>COMMS:</span>
-                <span className="font-black">[{commentsCount}]</span>
+                <span className="font-black">[{task.commentsCount}]</span>
               </div>
             )}
           </div>
@@ -224,15 +196,15 @@ export default function TaskCard({
               className="text-[8px] text-white/20 tracking-tighter"
               title="Unique node ID"
             >
-              #{(id || _id)?.slice(0, 4).toUpperCase()}
+              #{(task.id || task._id)?.slice(0, 4).toUpperCase()}
             </span>
 
-            {assignee ? (
+            {task.assignee ? (
               <div
                 className="h-5 w-5 rounded bg-neon-cyan/20 border border-neon-cyan text-neon-cyan flex items-center justify-center text-[9px] font-black shadow-sm"
-                title={assignee.name}
+                title={task.assignee.name}
               >
-                {assignee.initials.toUpperCase()}
+                {task.assignee.initials.toUpperCase()}
               </div>
             ) : (
               <div

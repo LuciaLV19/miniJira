@@ -1,15 +1,31 @@
 import express from "express";
+import { validate } from "../middleware/validate.js";
+import {
+  createProjectSchema,
+  updateProjectSchema,
+} from "../schemas/projectSchema.js";
+import { protect } from "../middleware/authMiddleware.js";
+import taskRoutes from "./taskRoutes.js";
+
 import {
   getProjects,
   createProject,
   deleteProject,
+  updateProject,
 } from "../controllers/projectController.js";
-import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.route("/").get(protect, getProjects).post(protect, createProject);
+router
+  .route("/")
+  .get(protect, getProjects)
+  .post(protect, validate(createProjectSchema), createProject);
 
-router.route("/:id").delete(protect, deleteProject);
+router
+  .route("/:projectId")
+  .delete(protect, deleteProject)
+  .put(protect, validate(updateProjectSchema), updateProject);
+
+router.use("/:projectId/tasks", taskRoutes);
 
 export default router;

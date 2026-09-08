@@ -6,7 +6,7 @@
 
 ## Español
 
-Cliente SPA (Single Page Application) para la plataforma de gestión de tareas **MiniJira**. Diseñado con una interfaz temática **Cyberpunk/Neon** utilizando **React 18**, **TypeScript**, **Tailwind CSS** y **Zustand** para la gestión del estado global.
+Cliente SPA (Single Page Application) para la plataforma de gestión de tareas **MiniJira**. Diseñado con una interfaz temática **Cyberpunk/Neon** utilizando **React 19**, **TypeScript**, **Tailwind CSS** y **Zustand** para la gestión del estado global.
 
 ### 📦 Estructura del Código Fuente
 
@@ -22,12 +22,13 @@ frontend/src/
 
 ### ⚡ Tecnologías y Herramientas
 
-* **React 18 + TypeScript:** Tipado estricto y componentes funcionales reutilizables.
-* **Vite:** Herramienta de compilación y servidor de desarrollo rápido.
-* **Zustand:** Gestión de estado global para proyectos, tareas y sesión de usuario.
-* **Tailwind CSS:** Framework de estilos utility-first configurado con una estética neón/cyberpunk.
-* **Axios:** Cliente HTTP con interceptores para la gestión automática del token JWT mediante `Authorization: Bearer <TOKEN>`.
-* **Vitest + React Testing Library:** Herramientas utilizadas para la configuración y ejecución de pruebas unitarias de componentes y stores.
+- **React 19 + TypeScript:** Tipado estricto y componentes funcionales reutilizables.
+- **Vite:** Herramienta de compilación y servidor de desarrollo rápido.
+- **React Router:** Gestión de rutas y navegación dentro de la aplicación SPA.
+- **Zustand:** Gestión de estado global para proyectos, tareas y sesión de usuario.
+- **Tailwind CSS:** Framework de estilos utility-first configurado con una estética neón/cyberpunk.
+- **Axios:** Cliente HTTP con interceptores para la gestión automática del token JWT mediante `Authorization: Bearer <TOKEN>`.
+- **Vitest:** Framework utilizado para la ejecución de pruebas unitarias y de integración.
 
 ### 🛠️ Scripts Disponibles
 
@@ -37,26 +38,35 @@ Ejecuta los siguientes comandos desde la carpeta `/frontend`:
 # Iniciar servidor de desarrollo
 pnpm run dev
 
-# Ejecutar pruebas unitarias
+# Ejecutar pruebas
 pnpm run test
 
-# Abrir la interfaz interactiva de Vitest
-pnpm run test:ui
+# Ejecutar pruebas en modo watch
+pnpm run test:watch
 
-# Compilar la aplicación para producción (genera /dist)
+# Generar informe de cobertura
+pnpm run test:coverage
+
+# Comprobar errores de ESLint
+pnpm run lint
+
+# Compilar la aplicación para producción
 pnpm run build
+
+# Previsualizar la aplicación compilada
+pnpm run preview
 ```
 
 ### 🔐 Gestión de Estado Global (Zustand)
 
-* **useAuthStore:** Gestiona el token JWT, los datos del usuario autenticado y las acciones de login/logout.
-* **useProjectStore:** Gestiona el estado de los proyectos, tableros, columnas y tareas, permitiendo una actualización reactiva de la interfaz.
+- **useAuthStore:** Gestiona el token JWT, los datos del usuario autenticado y las acciones de login/logout.
+- **useProjectStore:** Gestiona el estado de los proyectos, tableros, columnas y tareas, permitiendo una actualización reactiva de la interfaz.
 
 ---
 
 ## English
 
-SPA (Single Page Application) client for the **MiniJira** task management platform. Built with a **Cyberpunk/Neon** UI theme using **React 18**, **TypeScript**, **Tailwind CSS**, and **Zustand** for global state management.
+SPA (Single Page Application) client for the **MiniJira** task management platform. Built with a **Cyberpunk/Neon** UI theme using **React 19**, **TypeScript**, **Tailwind CSS**, and **Zustand** for global state management.
 
 ### 📦 Source Code Structure
 
@@ -72,12 +82,13 @@ frontend/src/
 
 ### ⚡ Tech Stack & Features
 
-* **React 18 + TypeScript:** Strict typing and reusable functional components.
-* **Vite:** Fast frontend tooling, build system, and development server.
-* **Zustand:** Lightweight global state management for projects, tasks, and user sessions.
-* **Tailwind CSS:** Utility-first CSS framework configured with a neon/cyberpunk aesthetic.
-* **Axios:** HTTP client with interceptors for automatic JWT authentication through `Authorization: Bearer <TOKEN>`.
-* **Vitest + React Testing Library:** Tools used for configuring and running unit tests for components and stores.
+- **React 19 + TypeScript:** Strict typing and reusable functional components.
+- **Vite:** Fast frontend tooling, build system, and development server.
+- **React Router:** Client-side routing and navigation for the SPA.
+- **Zustand:** Lightweight global state management for projects, tasks, and user sessions.
+- **Tailwind CSS:** Utility-first CSS framework configured with a neon/cyberpunk aesthetic.
+- **Axios:** HTTP client with interceptors for automatic JWT authentication through `Authorization: Bearer <TOKEN>`.
+- **Vitest:** Testing framework used for running unit and integration tests.
 
 ### 🛠️ Available Scripts
 
@@ -87,17 +98,26 @@ Run these commands inside the `/frontend` directory:
 # Start the development server
 pnpm run dev
 
-# Run unit tests
+# Run tests
 pnpm run test
 
-# Open the Vitest interactive UI
-pnpm run test:ui
+# Run tests in watch mode
+pnpm run test:watch
 
-# Build the application for production (generates /dist)
+# Generate a code coverage report
+pnpm run test:coverage
+
+# Run ESLint
+pnpm run lint
+
+# Build the application for production
 pnpm run build
+
+# Preview the production build
+pnpm run preview
 ```
 
 ### 🔐 Global State Management (Zustand)
 
-* **useAuthStore:** Manages JWT tokens, authenticated user data, and login/logout actions.
-* **useProjectStore:** Manages projects, boards, columns, and task state, enabling reactive UI updates.
+- **useAuthStore:** Manages JWT tokens, authenticated user data, and login/logout actions.
+- **useProjectStore:** Manages projects, boards, columns, and task state, enabling reactive UI updates.

@@ -1,9 +1,9 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Project } from "../types/Project";
-import type { Task, Status } from "../types/Task";
+import type { Priority, Task } from "../types/Task";
 import { toast } from "sonner";
-import api from "../api/axios";
+import * as projectApi from "../services/projectService";
 
 const normalizeTask = (task: Task): Task => ({
   ...task,
@@ -18,12 +18,17 @@ const normalizeProject = (project: Project): Project => ({
   tasks: (project.tasks || []).map(normalizeTask),
 });
 
-/**
- * State interface defining state properties and state modification actions
- * for project and task lifecycle management.
- */
+export interface CreateTaskInput {
+  title: string;
+  description: string;
+  status: string;
+  priority: Priority;
+  dueDate: string;
+  category: string;
+  assignee?: { id?: string; _id?: string; name: string; initials: string };
+}
+
 interface ProjectState {
-  // State variables
   projects: Project[];
   isOpenModalProject: boolean;
   isOpenModalTask: boolean;
@@ -48,19 +53,13 @@ interface ProjectState {
   closeTaskModal: () => void;
 
   // Task management actions
-  createTask: (projectId: string, task: Task) => Promise<void>;
+  createTask: (projectId: string, task: CreateTaskInput) => Promise<void>;
   deleteTask: (projectId: string, taskId: string) => Promise<void>;
   updateTask: (projectId: string, taskId: string, data: Partial<Task>) => Promise<void>;
   editTask: (task: Task) => void;
-  updateColumn: (taskId: string, status: Status) => Promise<void>;
-
   fetchProjects: () => Promise<void>;
 }
 
-/**
- * Zustand global store for managing projects, active selection, tasks,
- * and modal view states with persistent local storage.
- */
 export const useProjectStore = create<ProjectState>()(
   persist(
     (set) => ({
@@ -77,13 +76,14 @@ export const useProjectStore = create<ProjectState>()(
       fetchProjects: async () => {
         set({ loading: true, error: null });
         try {
-          const response = await api.get("/projects");
+          const rawProjects = await projectApi.fetchProjectsApi();
           set({
-            projects: response.data.map(normalizeProject),
+            projects: rawProjects.map(normalizeProject),
             loading: false,
           });
-        } catch (error: any) {
-          set({ error: error.response?.data?.message || "An error occurred", loading: false });
+        } catch (error: unknown) {
+          console.error("Error fetching projects:", error);
+          set({ error: "An error occurred", loading: false });
         }
       },
 
@@ -98,7 +98,7 @@ export const useProjectStore = create<ProjectState>()(
         set({ isOpenModalProject: true, projectToEdit: undefined }),
       closeProjectModal: () =>
         set({ isOpenModalProject: false, projectToEdit: undefined }),
-      editProject: (project) => 
+      editProject: (project) =>
         set({ isOpenModalProject: true, projectToEdit: project }),
 
       // Task Modals
@@ -109,56 +109,58 @@ export const useProjectStore = create<ProjectState>()(
 
       // Project CRUD Operations
       createProject: async (name, description) => {
-      try {
-        const response = await api.post("/projects", { name, description });
-        const newProjectFromDB = normalizeProject(response.data);
+        try {
+          const rawProject = await projectApi.createProjectApi(name, description);
+          const newProjectFromDB = normalizeProject(rawProject);
 
-        set((state) => ({
-          projects: [...state.projects, newProjectFromDB],
-          activeProjectId: newProjectFromDB.id,
-        }));
-        toast.success("[ SYSTEM_LOG: PROJECT_CREATED ]", {
-          description: "The project has been created.",
-        });
-      } catch (error: any) {
-        toast.error("[ SYSTEM_LOG: PROJECT_CREATION_FAILED ]", {
-          description: "The project could not be created.",
-        });
-      }
-    },
+          set((state) => ({
+            projects: [...state.projects, newProjectFromDB],
+            activeProjectId: newProjectFromDB.id,
+          }));
+          toast.success("[ SYSTEM_LOG: PROJECT_CREATED ]", {
+            description: "The project has been created.",
+          });
+        } catch (error: unknown) {
+          console.error("Error creating project:", error);
+          toast.error("[ SYSTEM_LOG: PROJECT_CREATION_FAILED ]", {
+            description: "The project could not be created.",
+          });
+        }
+      },
 
       deleteProject: async (id) => {
-        try{
-        await api.delete(`/projects/${id}`);
+        try {
+          await projectApi.deleteProjectApi(id);
 
-        set((state) => ({
-          projects: state.projects.filter((p) => p.id !== id),
-          activeProjectId:
-            state.activeProjectId === id ? undefined : state.activeProjectId,
-        }));
-        toast.error("[ SYSTEM_LOG: PROJECT_DELETED ]", {
-          description: "The project has been deleted.",
-        });
-        } catch (error: any){
+          set((state) => ({
+            projects: state.projects.filter((p) => p.id !== id),
+            activeProjectId:
+              state.activeProjectId === id ? undefined : state.activeProjectId,
+          }));
+          toast.error("[ SYSTEM_LOG: PROJECT_DELETED ]", {
+            description: "The project has been deleted.",
+          });
+        } catch (error: unknown) {
+          console.error("Error deleting project:", error);
           toast.error("[SYSTEM_LOG: PROJECT_DELETED_FAILED]", {
-          description: "The project could not be deleted."
+            description: "The project could not be deleted.",
           });
         }
       },
 
       updateProject: async (projectId, data) => {
         try {
-          await api.put(`/projects/${projectId}`, data);
+          await projectApi.updateProjectApi(projectId, data);
           set((state) => ({
-          projects: state.projects.map((p) =>
-            p.id === projectId ? normalizeProject({ ...p, ...data }) : p,
-          ),
-        }));
-        toast.success("[ SYSTEM_LOG: PROJECT_UPDATED ]", {
-          description: "The project has been updated.",
-        });
-        }        
-         catch (error: any) {
+            projects: state.projects.map((p) =>
+              p.id === projectId || p._id === projectId ? normalizeProject({ ...p, ...data }) : p
+            ),
+          }));
+          toast.success("[ SYSTEM_LOG: PROJECT_UPDATED ]", {
+            description: "The project has been updated.",
+          });
+        } catch (error: unknown) {
+          console.error("Error updating project:", error);
           toast.error("[ SYSTEM_LOG: PROJECT_UPDATE_FAILED ]", {
             description: "The project could not be updated.",
           });
@@ -168,28 +170,29 @@ export const useProjectStore = create<ProjectState>()(
       toggleFavoriteProject: (id) => {
         set((state) => ({
           projects: state.projects.map((p) =>
-            p.id === id ? { ...p, isFavorite: !p.isFavorite } : p,
+            p.id === id ? { ...p, isFavorite: !p.isFavorite } : p
           ),
         }));
       },
 
       // Task CRUD Operations
-      createTask: async (projectId, task) => {
+      createTask: async (projectId, task: CreateTaskInput) => {
         try {
-          const response = await api.post(`/projects/${projectId}/tasks`, task);
-          const newTask = normalizeTask(response.data);
+          const rawTask = await projectApi.createTaskApi(projectId, task);
+          const newTask = normalizeTask(rawTask);
 
           set((state) => ({
-          projects: state.projects.map((p) =>
-            p.id === projectId ?
-          { ...p, tasks: [...(p.tasks || []), newTask] }
-          : p,
-          ),
-        }));
-        toast.success("[ SYSTEM_LOG: TASK_CREATED ]", {
-          description: "The task has been created.",
-        });
-        } catch (error: any) {
+            projects: state.projects.map((p) =>
+              p.id === projectId || p._id === projectId
+                ? { ...p, tasks: [...(p.tasks || []), newTask] }
+                : p
+            ),
+          }));
+          toast.success("[ SYSTEM_LOG: TASK_CREATED ]", {
+            description: "The task has been created.",
+          });
+        } catch (error: unknown) {
+          console.error("Error creating task:", error);
           toast.error("[ SYSTEM_LOG: TASK_CREATION_FAILED ]", {
             description: "The task could not be created.",
           });
@@ -198,15 +201,16 @@ export const useProjectStore = create<ProjectState>()(
 
       deleteTask: async (projectId, taskId) => {
         try {
-          await api.delete(`/projects/${projectId}/tasks/${taskId}`);
+          await projectApi.deleteTaskApi(projectId, taskId);
           set((state) => ({
-          projects: state.projects.map((p) =>
-            p.id === projectId
-              ? { ...p, tasks: (p.tasks || []).filter((t) => t.id !== taskId) }
-              : p,
-          ),
-        }));
-        } catch (error: any) {
+            projects: state.projects.map((p) =>
+              p.id === projectId || p._id === projectId
+                ? { ...p, tasks: (p.tasks || []).filter((t) => t.id !== taskId && t._id !== taskId) }
+                : p
+            ),
+          }));
+        } catch (error: unknown) {
+          console.error("Error deleting task:", error);
           toast.error("[ SYSTEM_LOG: TASK_DELETION_FAILED ]", {
             description: "The task could not be deleted.",
           });
@@ -215,47 +219,30 @@ export const useProjectStore = create<ProjectState>()(
 
       updateTask: async (projectId, taskId, data) => {
         try {
-          await api.put(`/projects/${projectId}/tasks/${taskId}`, data);
+          await projectApi.updateTaskApi(projectId, taskId, data);
           set((state) => ({
             projects: state.projects.map((p) =>
-              p.id === projectId
+              p.id === projectId || p._id === projectId
                 ? {
                     ...p,
                     tasks: (p.tasks || []).map((t) =>
-                      t.id === taskId ? normalizeTask({ ...t, ...data }) : t,
+                      t.id === taskId || t._id === taskId ? normalizeTask({ ...t, ...data }) : t
                     ),
                   }
-                : p,
+                : p
             ),
           }));
-        } catch (error: any) {
+        } catch (error: unknown) {
+          console.error("Error updating task:", error);
           toast.error("[ SYSTEM_LOG: TASK_UPDATE_FAILED ]", {
             description: "The task could not be updated.",
           });
         }
       },
-
-      updateColumn: async (taskId, status) => {
-      set((state) => ({
-        projects: state.projects.map((p) => ({
-          ...p,
-          tasks: (p.tasks || []).map((t) =>
-            t.id === taskId ? { ...t, status } : t
-          ),
-        })),
-      }));
-
-      try {
-        await api.put(`/tasks/${taskId}`, { status });
-      } catch (error: any) {
-        toast.error("[ SYSTEM_LOG: TASK_MOVE_FAILED ]", {
-          description: "Could not update task status on the server.",
-        });
-      }
-    },
     }),
     {
       name: "project-storage",
-    },
-  ),
+      partialize: (state) => ({ activeProjectId: state.activeProjectId }),
+    }
+  )
 );

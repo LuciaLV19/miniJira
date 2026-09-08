@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { v4 as uuidv4 } from "uuid";
 import { useProjectStore } from "../../store/useProjectStore";
 import type { Priority } from "../../types/Task";
+import { useParams } from "react-router-dom";
 
 /**
  * Modal component responsible for creating new tasks or editing existing ones
@@ -12,18 +12,12 @@ export default function CreateTaskModal() {
   const closeModal = useProjectStore((state) => state.closeTaskModal);
   const addTask = useProjectStore((state) => state.createTask);
   const updateTask = useProjectStore((state) => state.updateTask);
+  const activeProjectId = useProjectStore((state) => state.activeProjectId);
   const taskToEdit = useProjectStore((state) => state.taskToEdit);
   const isEditMode = !!taskToEdit;
   const isOpen = useProjectStore((state) => state.isOpenModalTask);
-
-  // Retrieve current active project reference from state
-  const taskFromProject = useProjectStore((state) => {
-    const activeProjectId = state.activeProjectId;
-    if (!activeProjectId) return undefined;
-    return state.projects.find((p) => p.id === activeProjectId);
-  });
-  const projectId = taskFromProject?.id;
-  const taskId = taskToEdit?.id;
+  const { projectId } = useParams<{ projectId: string }>();
+  const taskId = taskToEdit?.id || taskToEdit?._id;
 
   // Mocked list of available team members for task assignment
   const TEAM_MEMBERS = [
@@ -39,7 +33,7 @@ export default function CreateTaskModal() {
     taskToEdit?.description ?? "",
   );
   const [taskPriority, setTaskPriority] = useState<Priority>(
-    taskToEdit?.priority ?? "low",
+    taskToEdit?.priority ?? "LOW",
   );
   const [taskCategory, setTaskCategory] = useState(taskToEdit?.category ?? "");
   const [taskDueDate, setTaskDueDate] = useState(taskToEdit?.dueDate ?? "");
@@ -58,13 +52,13 @@ export default function CreateTaskModal() {
     setError("");
 
     if (isEditMode) {
-      if (!projectId || !taskId) {
+      if ((!projectId && !activeProjectId) || !taskId) {
         setError("Unable to resolve the current task or project ID.");
         return;
       }
 
       // Update existing task
-      updateTask(projectId, taskId, {
+      updateTask(projectId || activeProjectId!, taskId, {
         title: taskNameTrimmed,
         description: taskDescriptionTrimmed,
         priority: taskPriority,
@@ -73,23 +67,20 @@ export default function CreateTaskModal() {
         assignee: taskAssignee,
       });
     } else {
-      if (!projectId) {
+      if (!projectId && !activeProjectId) {
         setError("No active project selected.");
         return;
       }
 
       // Create new task
-      addTask(projectId, {
-        id: uuidv4(),
+      addTask(projectId || activeProjectId!, {
         title: taskNameTrimmed,
         description: taskDescriptionTrimmed,
-        status: "backlog",
+        status: "BACKLOG",
         priority: taskPriority,
         category: taskCategory,
         dueDate: taskDueDate,
         assignee: taskAssignee,
-        createdAt: new Date().toLocaleDateString("en-US"),
-        commentsCount: 0,
       });
     }
     closeModal();
@@ -155,9 +146,10 @@ export default function CreateTaskModal() {
                 value={taskPriority}
                 onChange={(e) => setTaskPriority(e.target.value as Priority)}
               >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
+                <option value="LOW">LOW</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="HIGH">HIGH</option>
+                <option value="URGENT">URGENT</option>
               </select>
 
               <label

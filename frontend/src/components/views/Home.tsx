@@ -2,9 +2,14 @@ import CreateProjectModal from "../projects/CreateProjectModal";
 import { useProjectStore } from "../../store/useProjectStore";
 import ProjectView from "./ProjectView";
 import Sidebar from "../layouts/Sidebar";
+import { useEffect } from "react";
 
 export default function Home() {
   const isOpen = useProjectStore((state) => state.isOpenModalProject);
+  const fetchProjects = useProjectStore((state) => state.fetchProjects);
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
 
   return (
     <>
