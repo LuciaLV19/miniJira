@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import "@testing-library/jest-dom";
 import { BrowserRouter } from "react-router-dom";
 import LoginForm from "./LoginForm";
 import api from "../../api/axios";
@@ -14,8 +15,6 @@ vi.mock("react-router-dom", async () => {
 });
 
 describe("LoginForm Component", () => {
-  const mockNavigate = vi.fn();
-
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(api.post).mockClear();
