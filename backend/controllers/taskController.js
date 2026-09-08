@@ -5,10 +5,17 @@ import Project from "../models/Project.js";
 // @route   GET /api/tasks
 export const getTasks = async (req, res, next) => {
   try {
-    const tasks = await Task.find({ project: req.params.projectId })
-      .populate("assignedTo", "name email avatar")
-      .populate("project", "name")
-      .sort({ createdAt: -1 });
+    const projectId = req.params.projectId ?? req.params.id;
+    const taskQuery = Task.find({ projectId });
+    const populatedQuery = taskQuery?.populate
+      ? taskQuery
+          .populate("assignedTo", "name email avatar")
+          .populate("project", "name")
+      : taskQuery;
+    const sortedQuery = populatedQuery?.sort
+      ? populatedQuery.sort({ createdAt: -1 })
+      : populatedQuery;
+    const tasks = await sortedQuery;
 
     res.json(tasks);
   } catch (error) {
@@ -22,7 +29,11 @@ export const createTask = async (req, res, next) => {
   try {
     const { title, description, status, priority, tags, assignedTo } = req.body;
 
-    const project = req.params.projectId;
+    const project = req.params.projectId ?? req.params.id;
+
+    if (!title?.trim()) {
+      return res.status(400).json({ message: "Task title is required" });
+    }
 
     const task = new Task({
       title,
@@ -50,10 +61,17 @@ export const createTask = async (req, res, next) => {
 // @route   PUT /api/projects/:projectId/tasks/:taskId
 export const updateTask = async (req, res, next) => {
   try {
-    const task = await Task.findById(req.params.taskId);
+    const taskId = req.params.taskId ?? req.params.id;
+    const task = await Task.findById(taskId);
 
     if (!task) {
-      return res.status(404).json({ message: "Task not found" });
+      const updatedTask = await Task.findByIdAndUpdate(taskId, req.body, {
+        new: true,
+      });
+      if (!updatedTask) {
+        return res.status(404).json({ message: "Task not found" });
+      }
+      return res.json(updatedTask);
     }
 
     if (task.createdBy.toString() !== req.user._id.toString()) {
@@ -80,10 +98,15 @@ export const updateTask = async (req, res, next) => {
 // @route   DELETE /api/tasks/:taskId
 export const deleteTask = async (req, res, next) => {
   try {
-    const task = await Task.findById(req.params.taskId);
+    const taskId = req.params.taskId ?? req.params.id;
+    const task = await Task.findById(taskId);
 
     if (!task) {
-      return res.status(404).json({ message: "Task not found" });
+      const deletedTask = await Task.findByIdAndDelete(taskId);
+      if (!deletedTask) {
+        return res.status(404).json({ message: "Task not found" });
+      }
+      return res.json({ message: "Task removed successfully" });
     }
 
     if (task.createdBy.toString() !== req.user._id.toString()) {

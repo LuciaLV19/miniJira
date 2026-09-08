@@ -23,11 +23,14 @@ describe("authMiddleware", () => {
     it("debería permitir acceso con un token válido", async () => {
       req.headers.authorization = "Bearer valid-token";
 
-      vi.mocked(jwt.verify).mockReturnValue({ id: "user-123" });
+      vi.mocked(jwt.verify).mockReturnValue({
+        id: "user-123",
+        _id: "user-123",
+      });
 
       await protect(req, res, next);
 
-      expect(req.user).toEqual({ id: "user-123" });
+      expect(req.user).toEqual({ id: "user-123", _id: "user-123" });
       expect(next).toHaveBeenCalled();
     });
 
@@ -59,7 +62,10 @@ describe("authMiddleware", () => {
     it("debería extraer correctamente el token del header", async () => {
       req.headers.authorization = "Bearer some-token";
 
-      vi.mocked(jwt.verify).mockReturnValue({ id: "user-123" });
+      vi.mocked(jwt.verify).mockReturnValue({
+        id: "user-123",
+        _id: "user-123",
+      });
 
       await protect(req, res, next);
 

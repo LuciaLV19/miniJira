@@ -8,6 +8,7 @@ describe("projectController", () => {
   let req, res, next;
 
   beforeEach(() => {
+    vi.restoreAllMocks();
     req = {
       body: {},
       user: { _id: "user-123", id: "user-123" },
@@ -18,7 +19,6 @@ describe("projectController", () => {
       json: vi.fn().mockReturnThis(),
     };
     next = vi.fn();
-    vi.clearAllMocks();
   });
 
   describe("getProjects", () => {

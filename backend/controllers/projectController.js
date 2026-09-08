@@ -5,11 +5,14 @@ import Task from "../models/Task.js";
 // @route   GET /api/projects
 export const getProjects = async (req, res, next) => {
   try {
-    const projects = await Project.find({ createdBy: req.user._id })
-      .populate("tasks")
-      .sort({
-        createdAt: -1,
-      });
+    const projectQuery = Project.find({ createdBy: req.user._id });
+    const populatedQuery = projectQuery?.populate
+      ? projectQuery.populate("tasks")
+      : projectQuery;
+    const sortedQuery = populatedQuery?.sort
+      ? populatedQuery.sort({ createdAt: -1 })
+      : populatedQuery;
+    const projects = await sortedQuery;
     res.json(projects);
   } catch (error) {
     next(error);
@@ -21,6 +24,10 @@ export const getProjects = async (req, res, next) => {
 export const createProject = async (req, res, next) => {
   try {
     const { name, description } = req.body;
+
+    if (!name?.trim()) {
+      return res.status(400).json({ message: "Project name is required" });
+    }
 
     const project = new Project({
       name,

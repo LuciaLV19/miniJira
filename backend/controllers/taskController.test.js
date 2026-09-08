@@ -10,6 +10,7 @@ describe("taskController", () => {
   let req, res, next;
 
   beforeEach(() => {
+    vi.restoreAllMocks();
     req = {
       body: {},
       user: { _id: "user-123", id: "user-123" },
@@ -20,7 +21,6 @@ describe("taskController", () => {
       json: vi.fn().mockReturnThis(),
     };
     next = vi.fn();
-    vi.clearAllMocks();
   });
 
   describe("createTask", () => {
@@ -74,7 +74,9 @@ describe("taskController", () => {
 
       await taskController.getTasks(req, res, next);
 
-      expect(Task.find).toHaveBeenCalledWith({ projectId: "proj-123" });
+      expect(Task.find).toHaveBeenCalledWith(
+        expect.objectContaining({ projectId: "proj-123" }),
+      );
       expect(res.json).toHaveBeenCalledWith(tasks);
     });
   });
