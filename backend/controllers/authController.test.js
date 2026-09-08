@@ -7,7 +7,7 @@ vi.mock("../models/User.js");
 vi.mock("jsonwebtoken");
 
 describe("authController", () => {
-  let req, res;
+  let req, res, next;
 
   beforeEach(() => {
     req = {
@@ -18,6 +18,7 @@ describe("authController", () => {
       status: vi.fn().mockReturnThis(),
       json: vi.fn().mockReturnThis(),
     };
+    next = vi.fn();
     vi.clearAllMocks();
   });
 
@@ -39,7 +40,7 @@ describe("authController", () => {
       vi.mocked(User.create).mockResolvedValue(newUser);
       vi.mocked(jwt.sign).mockReturnValue("test-token");
 
-      await authController.registerUser(req, res);
+      await authController.registerUser(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith(
@@ -63,7 +64,7 @@ describe("authController", () => {
         email: "existing@example.com",
       });
 
-      await authController.registerUser(req, res);
+      await authController.registerUser(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({
@@ -76,7 +77,7 @@ describe("authController", () => {
         username: "testuser",
       };
 
-      await authController.registerUser(req, res);
+      await authController.registerUser(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({
@@ -102,7 +103,7 @@ describe("authController", () => {
       vi.mocked(User.findOne).mockResolvedValue(user);
       vi.mocked(jwt.sign).mockReturnValue("test-token");
 
-      await authController.loginUser(req, res);
+      await authController.loginUser(req, res, next);
 
       expect(res.json).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -122,7 +123,7 @@ describe("authController", () => {
 
       vi.mocked(User.findOne).mockResolvedValue(null);
 
-      await authController.loginUser(req, res);
+      await authController.loginUser(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({

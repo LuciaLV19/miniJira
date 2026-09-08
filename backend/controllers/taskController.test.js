@@ -7,18 +7,19 @@ vi.mock("../models/Task.js");
 vi.mock("../models/Project.js");
 
 describe("taskController", () => {
-  let req, res;
+  let req, res, next;
 
   beforeEach(() => {
     req = {
       body: {},
-      user: { _id: "user-123" },
+      user: { _id: "user-123", id: "user-123" },
       params: {},
     };
     res = {
       status: vi.fn().mockReturnThis(),
       json: vi.fn().mockReturnThis(),
     };
+    next = vi.fn();
     vi.clearAllMocks();
   });
 
@@ -29,7 +30,7 @@ describe("taskController", () => {
         description: "Descripción de la tarea",
         status: "TODO",
       };
-      req.params.projectId = "proj-123";
+      req.params = { id: "proj-123", projectId: "proj-123" };
 
       const newTask = {
         _id: "task-123",
@@ -37,14 +38,12 @@ describe("taskController", () => {
         description: "Descripción de la tarea",
         status: "TODO",
         projectId: "proj-123",
-        save: vi.fn().mockResolvedValue(this),
       };
 
-      vi.mocked(Task).mockImplementation(() => newTask);
-      newTask.save.mockResolvedValue(newTask);
+      vi.spyOn(Task.prototype, "save").mockResolvedValue(newTask);
       vi.mocked(Project.findByIdAndUpdate).mockResolvedValue({});
 
-      await taskController.createTask(req, res);
+      await taskController.createTask(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalled();
@@ -54,9 +53,9 @@ describe("taskController", () => {
       req.body = {
         description: "Sin título",
       };
-      req.params.projectId = "proj-123";
+      req.params = { id: "proj-123", projectId: "proj-123" };
 
-      await taskController.createTask(req, res);
+      await taskController.createTask(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(400);
     });
@@ -64,7 +63,7 @@ describe("taskController", () => {
 
   describe("getTasks", () => {
     it("debería obtener todas las tareas del proyecto", async () => {
-      req.params.projectId = "proj-123";
+      req.params = { id: "proj-123", projectId: "proj-123" };
 
       const tasks = [
         { _id: "task-1", title: "Tarea 1", status: "TODO" },
@@ -73,7 +72,7 @@ describe("taskController", () => {
 
       vi.mocked(Task.find).mockResolvedValue(tasks);
 
-      await taskController.getTasks(req, res);
+      await taskController.getTasks(req, res, next);
 
       expect(Task.find).toHaveBeenCalledWith({ projectId: "proj-123" });
       expect(res.json).toHaveBeenCalledWith(tasks);
@@ -82,7 +81,7 @@ describe("taskController", () => {
 
   describe("updateTask", () => {
     it("debería actualizar una tarea", async () => {
-      req.params.taskId = "task-123";
+      req.params = { id: "task-123", taskId: "task-123" };
       req.body = {
         title: "Título actualizado",
         status: "DONE",
@@ -96,19 +95,19 @@ describe("taskController", () => {
 
       vi.mocked(Task.findByIdAndUpdate).mockResolvedValue(updatedTask);
 
-      await taskController.updateTask(req, res);
+      await taskController.updateTask(req, res, next);
 
       expect(Task.findByIdAndUpdate).toHaveBeenCalled();
       expect(res.json).toHaveBeenCalledWith(updatedTask);
     });
 
     it("debería retornar error si la tarea no existe", async () => {
-      req.params.taskId = "nonexistent";
+      req.params = { id: "nonexistent", taskId: "nonexistent" };
       req.body = {};
 
       vi.mocked(Task.findByIdAndUpdate).mockResolvedValue(null);
 
-      await taskController.updateTask(req, res);
+      await taskController.updateTask(req, res, next);
 
       expect(res.status).toHaveBeenCalledWith(404);
     });
@@ -116,13 +115,16 @@ describe("taskController", () => {
 
   describe("deleteTask", () => {
     it("debería eliminar una tarea", async () => {
-      req.params.taskId = "task-123";
-      req.params.projectId = "proj-123";
+      req.params = {
+        id: "task-123",
+        taskId: "task-123",
+        projectId: "proj-123",
+      };
 
       vi.mocked(Task.findByIdAndDelete).mockResolvedValue({ _id: "task-123" });
       vi.mocked(Project.findByIdAndUpdate).mockResolvedValue({});
 
-      await taskController.deleteTask(req, res);
+      await taskController.deleteTask(req, res, next);
 
       expect(Task.findByIdAndDelete).toHaveBeenCalledWith("task-123");
       expect(res.json).toHaveBeenCalled();
