@@ -3,7 +3,9 @@ import { ZodError } from "zod";
 export const validate = (schema) => {
   return (req, res, next) => {
     try {
-      req.body = schema.parse(req.body);
+      const bodyToValidate = req.body || {};
+
+      req.body = schema.parse(bodyToValidate);
       next();
     } catch (error) {
       if (error instanceof ZodError) {
@@ -13,7 +15,9 @@ export const validate = (schema) => {
         });
       }
 
-      next(error);
+      return res
+        .status(400)
+        .json({ message: "Invalid payload request", error: error.message });
     }
   };
 };
