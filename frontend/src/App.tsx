@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router-dom";
+import { Analytics } from "@vercel/analytics/react";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Home from "./components/views/Home";
 import ProjectView from "./components/views/ProjectView";
@@ -42,6 +43,7 @@ function App() {
           },
         }}
       />
+      <Analytics />
     </>
   );
 }
