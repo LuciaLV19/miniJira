@@ -22,6 +22,8 @@ export const getProjects = async (req, res, next) => {
 // @desc    Create a project
 // @route   POST /api/projects
 export const createProject = async (req, res, next) => {
+  console.log("--> 1. Body recibido:", req.body);
+  console.log("--> 2. Usuario descodificado en req.user:", req.user);
   try {
     const { name, description } = req.body;
 
@@ -29,10 +31,16 @@ export const createProject = async (req, res, next) => {
       return res.status(400).json({ message: "Project name is required" });
     }
 
+    const userId = req.user?._id || req.user?.id;
+
+    if (!userId) {
+      console.log("--> ERROR: No hay userId en req.user");
+      return res.status(401).json({ message: "User not authenticated" });
+    }
     const project = new Project({
       name,
       description,
-      createdBy: req.user._id,
+      createdBy: userId,
     });
 
     const createdProject = await project.save();

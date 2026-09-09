@@ -14,15 +14,23 @@ export const protect = async (req, res, next) => {
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
+      const userId = decoded.id || decoded._id;
+
       // Attach the verified token claims to the request
-      req.user = decoded;
+      req.user = {
+        ...decoded,
+        _id: userId,
+        id: userId,
+      };
       return next();
     } catch (error) {
-      res.status(401).json({ message: "Not authorized, token failed" });
+      return res.status(401).json({ message: "Not authorized, token failed" });
     }
   }
 
   if (!token) {
-    res.status(401).json({ message: "Not authorized, no token provided" });
+    return res
+      .status(401)
+      .json({ message: "Not authorized, no token provided" });
   }
 };
