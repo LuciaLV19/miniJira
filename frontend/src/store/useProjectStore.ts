@@ -209,6 +209,9 @@ export const useProjectStore = create<ProjectState>()(
                 : p
             ),
           }));
+          toast.success("[ SYSTEM_LOG: TASK_DELETED ]", {
+            description: "The task has been deleted.",
+          });
         } catch (error: unknown) {
           console.error("Error deleting task:", error);
           toast.error("[ SYSTEM_LOG: TASK_DELETION_FAILED ]", {
@@ -232,6 +235,9 @@ export const useProjectStore = create<ProjectState>()(
                 : p
             ),
           }));
+          toast.success("[ SYSTEM_LOG: TASK_UPDATED ]", {
+            description: "The task has been updated.",
+          });
         } catch (error: unknown) {
           console.error("Error updating task:", error);
           toast.error("[ SYSTEM_LOG: TASK_UPDATE_FAILED ]", {
