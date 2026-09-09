@@ -43,3 +43,6 @@ jobs:
 
       - name: Run Vitest tests
         run: pnpm test
+
+      - name: Run Frontend Tests
+        run: pnpm --dir frontend test
