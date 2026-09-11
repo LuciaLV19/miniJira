@@ -1,6 +1,6 @@
 import axios from "axios";
 
-// 1. Creación de la instancia con la URL base de tu backend Express
+// 1. Create an Axios instance to set the base URL
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000/api",
   headers: {
