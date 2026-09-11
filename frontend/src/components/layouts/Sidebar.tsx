@@ -139,7 +139,7 @@ export default function Sidebar() {
               JSON.stringify(newCollapsed),
             );
           }}
-          className="absolute w-4 h-8 bg-[#000000]! opacity-100 border border-neon-magenta/30 text-neon-magenta/70 text-[8px] font-mono flex items-center justify-center rounded transition-all duration-200 group-hover: cursor-pointer hover:border-neon-magenta hover:text-neon-magenta hover:shadow-[0_0_12px_rgba(236,72,153,0.5)] z-30"
+          className="absolute w-4 h-8 bg-[#000000]! opacity-100 border border-neon-magenta/30 text-neon-magenta/70 text-[8px] font-mono flex items-center justify-center rounded transition-all duration-200  cursor-pointer hover:border-neon-magenta hover:text-neon-magenta hover:shadow-[0_0_12px_rgba(236,72,153,0.5)] z-30"
           style={{
             transform: isCollapsed ? "translateX(3px)" : "translateX(1px)",
           }}

@@ -44,13 +44,13 @@ export default function RegisterForm() {
       return;
     }
 
-    if (!passwordsMatch) {
-      setError("Passwords do not match");
+    if (!requirements.every((req) => req.valid)) {
+      setError("Password does not meet all requirements");
       return;
     }
 
-    if (!requirements.every((req) => req.valid)) {
-      setError("Password does not meet all requirements");
+    if (!passwordsMatch) {
+      setError("Passwords do not match");
       return;
     }
 

@@ -81,7 +81,7 @@ export default function ProjectCards({ project }: { project: Project }) {
       <div className="pl-2 flex flex-col gap-1.5">
         {/* Top Row: Project Name and Favorite Toggle */}
         <div className="flex justify-between items-center gap-2">
-          <span className="text-xs font-bold tracking-wide truncate max-w-40font-mono text-white group-hover:text-neon-cyan transition-colors">
+          <span className="text-xs font-bold tracking-wide truncate max-w-40 font-mono text-white group-hover:text-neon-cyan transition-colors">
             {project.name}
           </span>
 
