@@ -36,7 +36,6 @@ export default function Sidebar() {
       localStorage.setItem("sidebarWidth", newWidth.toString());
     };
 
-    // Function to handle mouse up event and stop resizing
     const handleMouseUp = () => {
       isResizing.current = false;
       setIsDragging(false);
@@ -52,7 +51,6 @@ export default function Sidebar() {
     };
   }, []);
 
-  // Function to start resizing the sidebar
   const startResizing = (e: React.MouseEvent) => {
     e.preventDefault();
     isResizing.current = true;
@@ -60,94 +58,105 @@ export default function Sidebar() {
     document.body.style.cursor = "ew-resize";
   };
 
-  return (
-    <div
-      style={{ width: isCollapsed ? 0 : sidebarWidth }}
-      className={`h-full relative shrink-0 select-none z-0 ${
-        !isDragging ? "transition-[width] duration-300 ease-in-out" : ""
-      }`}
-    >
-      {/* Sidebar content */}
-      <aside
-        style={{
-          width: sidebarWidth,
-          transform: isCollapsed
-            ? `translateX(-${sidebarWidth}px)`
-            : "translateX(0)",
-        }}
-        className="w-full border-r border-neon-cyan/20 bg-cyber-card/40 p-4 flex flex-col justify-between h-full absolute top-0 left-0 z-0 transition-transform duration-300 ease-in-out"
-      >
-        <div className="flex flex-col gap-4 overflow-y-auto h-full min-w-37.5">
-          {/* Header */}
-          <div className="flex items-center justify-between border-b border-neon-magenta/30 pb-2">
-            <h2 className="text-neon-magenta text-xs tracking-widest uppercase font-bold drop-shadow-text-magenta">
-              // ACTIVE_PROJECTS
-            </h2>
-            <span className="text-xs bg-neon-magenta/10 text-neon-magenta px-2 py-0.5 border border-neon-magenta/20 rounded font-mono">
-              {projects.length}
-            </span>
-          </div>
+  const toggleCollapse = () => {
+    const newCollapsed = !isCollapsed;
+    setIsCollapsed(newCollapsed);
+    localStorage.setItem("sidebarCollapsed", JSON.stringify(newCollapsed));
+  };
 
-          {/* Search Bar */}
-          <div className="relative m-1">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <span className="text-[10px] text-neon-magenta/70 font-mono">
-                ⌕
+  return (
+    <>
+      {/* CAPA OSCURA (Backdrop) EN MÓVILES: Permite cerrar el Sidebar tocando fuera */}
+      {!isCollapsed && (
+        <div
+          onClick={toggleCollapse}
+          className="md:hidden fixed inset-0 bg-black/70 backdrop-blur-xs z-30 transition-opacity"
+        />
+      )}
+
+      {/* CONTENEDOR PRINCIPAL */}
+      <div
+        style={{
+          width: isCollapsed ? 0 : sidebarWidth,
+        }}
+        className={`
+          fixed md:relative top-0 left-0 h-full z-40 md:z-0 shrink-0 select-none
+          ${!isDragging ? "transition-[width,transform] duration-300 ease-in-out" : ""}
+          ${isCollapsed ? "-translate-x-full md:translate-x-0" : "translate-x-0"}
+        `}
+      >
+        {/* Sidebar Content */}
+        <aside
+          style={{ width: sidebarWidth }}
+          className="w-full border-r border-neon-cyan/20 bg-[#0d111a]/95 md:bg-cyber-card/40 p-4 flex flex-col justify-between h-full absolute top-0 left-0 transition-transform duration-300 ease-in-out backdrop-blur-md md:backdrop-blur-none"
+        >
+          <div className="flex flex-col gap-4 overflow-y-auto h-full min-w-37.5">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-neon-magenta/30 pb-2">
+              <h2 className="text-neon-magenta text-xs tracking-widest uppercase font-bold drop-shadow-text-magenta">
+                // ACTIVE_PROJECTS
+              </h2>
+              <span className="text-xs bg-neon-magenta/10 text-neon-magenta px-2 py-0.5 border border-neon-magenta/20 rounded font-mono">
+                {projects.length}
               </span>
             </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search projects"
-              className="w-full rounded border border-neon-magenta/30 bg-black/70 py-2 pl-8 pr-3 text-[11px] text-neon-magenta placeholder:text-neon-magenta/50 shadow-[0_0_0_1px_rgba(236,72,153,0.08)] outline-none transition-all duration-300 focus:border-neon-magenta focus:ring-2 focus:ring-neon-magenta/30 focus:shadow-[0_0_12px_rgba(236,72,153,0.18)]"
-            />
+
+            {/* Search Bar */}
+            <div className="relative m-1">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                <span className="text-[10px] text-neon-magenta/70 font-mono">
+                  ⌕
+                </span>
+              </div>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search projects"
+                className="w-full rounded border border-neon-magenta/30 bg-black/70 py-2 pl-8 pr-3 text-[11px] text-neon-magenta placeholder:text-neon-magenta/50 shadow-[0_0_0_1px_rgba(236,72,153,0.08)] outline-none transition-all duration-300 focus:border-neon-magenta focus:ring-2 focus:ring-neon-magenta/30 focus:shadow-[0_0_12px_rgba(236,72,153,0.18)]"
+              />
+            </div>
+
+            {/* Project List */}
+            <div className="flex-1 overflow-y-auto pr-3">
+              <ProjectList searchQuery={searchQuery} />
+            </div>
           </div>
 
-          {/* Project List */}
-          <div className="flex-1 overflow-y-auto pr-3">
-            <ProjectList searchQuery={searchQuery} />
+          {/* New Project Button */}
+          <div className="min-w-37.5">
+            <button
+              onClick={() => openModal()}
+              className="w-full mt-4 py-2.5 px-4 bg-transparent border border-neon-cyan text-neon-cyan shadow-none hover:shadow-neon-cyan hover:bg-neon-cyan/5 transition-all duration-300 rounded font-bold text-xs uppercase tracking-widest cursor-pointer active:scale-[0.98]"
+            >
+              + START_PROJECT
+            </button>
           </div>
-        </div>
+        </aside>
 
-        {/* New Project Button */}
-        <div className="min-w-37.5">
+        {/* DRAG STRIP & TOGGLE BUTTON */}
+        <div
+          onMouseDown={startResizing}
+          style={{ left: sidebarWidth - 3 }}
+          className={`absolute top-0 w-1.5 h-full cursor-ew-resize bg-transparent hover:bg-neon-magenta/40 z-50 group flex items-center justify-center ${
+            !isDragging ? "transition-[left] duration-300 ease-in-out" : ""
+          }`}
+        >
           <button
-            onClick={() => openModal()}
-            className="w-full mt-4 py-2.5 px-4 bg-transparent border border-neon-cyan text-neon-cyan shadow-none hover:shadow-neon-cyan hover:bg-neon-cyan/5 transition-all duration-300 rounded font-bold text-xs uppercase tracking-widest cursor-pointer active:scale-[0.98]"
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleCollapse();
+            }}
+            className="absolute w-4 h-8 bg-black border border-neon-magenta/30 text-neon-magenta/70 text-[8px] font-mono flex items-center justify-center rounded transition-all duration-200 cursor-pointer hover:border-neon-magenta hover:text-neon-magenta hover:shadow-[0_0_12px_rgba(236,72,153,0.5)] z-50"
+            style={{
+              transform: isCollapsed ? "translateX(16px)" : "translateX(1px)",
+            }}
+            title={isCollapsed ? "Deploy" : "Collapse"}
           >
-            + START_PROJECT
+            {isCollapsed ? "▶" : "◀"}
           </button>
         </div>
-      </aside>
-
-      {/* DRAG STRIP */}
-      <div
-        onMouseDown={startResizing}
-        style={{ left: isCollapsed ? 0 : sidebarWidth - 3 }}
-        className={`absolute top-0 w-1.5 h-full cursor-ew-resize bg-transparent hover:bg-neon-magenta/40 z-20 group flex items-center justify-center ${
-          !isDragging ? "transition-[left] duration-300 ease-in-out" : ""
-        }`}
-      >
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            const newCollapsed = !isCollapsed;
-            setIsCollapsed(newCollapsed);
-            localStorage.setItem(
-              "sidebarCollapsed",
-              JSON.stringify(newCollapsed),
-            );
-          }}
-          className="absolute w-4 h-8 bg-[#000000]! opacity-100 border border-neon-magenta/30 text-neon-magenta/70 text-[8px] font-mono flex items-center justify-center rounded transition-all duration-200  cursor-pointer hover:border-neon-magenta hover:text-neon-magenta hover:shadow-[0_0_12px_rgba(236,72,153,0.5)] z-30"
-          style={{
-            transform: isCollapsed ? "translateX(3px)" : "translateX(1px)",
-          }}
-          title={isCollapsed ? "Deploy" : "Collapse"}
-        >
-          {isCollapsed ? "▶" : "◀"}
-        </button>
       </div>
-    </div>
+    </>
   );
 }

@@ -67,19 +67,32 @@ function ProjectView() {
       <main className="flex-1 h-full overflow-y-auto bg-black border-l border-neon-cyan/10 p-4 md:p-6 font-mono text-white min-w-0 w-full">
         {/* Project Header */}
         <div className="max-w-7xl mx-auto space-y-6 border-b border-neon-cyan/20 pb-6 min-w-0">
-          <header className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center p-4 bg-[#0d111a] border border-cyan-500/20 rounded-xl min-w-0">
-            {/* Column 1: Project Title */}
-            <div className="flex flex-col items-start min-w-0 w-full overflow-hidden">
-              {/* 1. ACTIVE_CONTRACT CORREGIDO */}
-              <span className="text-[10px] text-neon-cyan/50 uppercase truncate w-full whitespace-nowrap block">
-                // ACTIVE_CONTRACT
-              </span>
-              <h1 className="text-2xl font-black text-neon-cyan uppercase tracking-wider truncate w-full">
-                {projectSelected.name}
-              </h1>
+          <header className="flex flex-col md:grid md:grid-cols-3 gap-4 items-start md:items-center p-4 bg-[#0d111a] border border-cyan-500/20 rounded-xl min-w-0">
+            {/* Column 1 (Phone}): Project Title and Task Counter */}
+            <div className="flex items-start justify-between w-full min-w-0 gap-2">
+              <div className="flex flex-col items-start min-w-0 flex-1">
+                <span className="text-[10px] text-neon-cyan/50 uppercase truncate w-full whitespace-nowrap block">
+                  // ACTIVE_CONTRACT
+                </span>
+                <h1 className="text-xl md:text-2xl font-black text-neon-cyan uppercase tracking-wider truncate w-full">
+                  {projectSelected.name}
+                </h1>
+              </div>
+
+              <div className="flex flex-col items-end gap-1.5 shrink-0">
+                <span className="text-[10px] text-neon-cyan/60 bg-neon-cyan/10 border border-neon-cyan/20 px-2 py-0.5 rounded font-bold whitespace-nowrap">
+                  TOTAL TASKS: [{totalTasksCount}]
+                </span>
+                <button
+                  onClick={openTaskModal}
+                  className="text-[9px] font-mono text-neon-magenta/80 hover:text-neon-magenta cursor-pointer uppercase transition-colors whitespace-nowrap font-bold"
+                >
+                  [ NEW_TASK ]
+                </button>
+              </div>
             </div>
 
-            {/* Column 2: Search Input */}
+            {/* Column 2 (Phone}): Search Input */}
             <div className="w-full min-w-0">
               <input
                 type="text"
@@ -88,22 +101,6 @@ function ProjectView() {
                 placeholder="Buscar tareas..."
                 className="w-full bg-black/50 border border-neon-cyan/20 rounded px-3 py-2 text-xs text-neon-cyan placeholder:text-neon-cyan/40 focus:outline-none focus:border-neon-cyan"
               />
-            </div>
-
-            {/* Column 3: Total Tasks and New Task Button */}
-            <div className="flex flex-col items-end gap-2 min-w-0 w-full overflow-hidden">
-              {/* 2. TOTAL TASKS CORREGIDO */}
-              <span className="text-[10px] text-neon-cyan/60 bg-neon-cyan/10 border border-neon-cyan/20 px-2 py-0.5 rounded font-bold whitespace-nowrap truncate max-w-full">
-                TOTAL TASKS: [{totalTasksCount}]
-              </span>
-
-              {/* 3. NEW_TASK BUTTON CORREGIDO */}
-              <button
-                onClick={openTaskModal}
-                className="text-[9px] font-mono text-neon-magenta/60 hover:text-neon-magenta cursor-pointer uppercase transition-colors whitespace-nowrap truncate max-w-full"
-              >
-                [ NEW_TASK ]
-              </button>
             </div>
           </header>
 
