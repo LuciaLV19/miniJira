@@ -18,7 +18,7 @@ export default function TaskBoard({ tasks }: TaskBoardProps) {
   const doneTasks = tasks.filter((t) => t.status === "COMPILED");
 
   return (
-    <div className="flex gap-4 pb-4 w-full overflow-x-auto min-h-0 select-none">
+    <div className="flex w-max min-w-full gap-4 pb-4 min-h-0 select-none">
       <Column title={`BACKLOG`} tasks={backlogTasks} status="BACKLOG" />
       <Column title={`TO DO`} tasks={todoTasks} status="TODO" />
       <Column

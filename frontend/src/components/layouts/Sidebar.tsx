@@ -2,16 +2,20 @@ import { useProjectStore } from "../../store/useProjectStore";
 import ProjectList from "../projects/ProjectList";
 import { useState, useEffect, useRef } from "react";
 
+const getInitialCollapsedState = () => {
+  const savedCollapsed = localStorage.getItem("sidebarCollapsed");
+  const isMobile = window.matchMedia("(max-width: 767px)").matches;
+
+  return isMobile || (savedCollapsed ? JSON.parse(savedCollapsed) : false);
+};
+
 export default function Sidebar() {
   // Sidebar state for management
   const [sidebarWidth, setSidebarWidth] = useState(() => {
     const savedWidth = localStorage.getItem("sidebarWidth");
     return savedWidth ? parseInt(savedWidth) : 256;
   });
-  const [isCollapsed, setIsCollapsed] = useState(() => {
-    const savedCollapsed = localStorage.getItem("sidebarCollapsed");
-    return savedCollapsed ? JSON.parse(savedCollapsed) : false;
-  });
+  const [isCollapsed, setIsCollapsed] = useState(getInitialCollapsedState);
 
   // Sidebar state for resizing
   const isResizing = useRef(false);
@@ -76,19 +80,21 @@ export default function Sidebar() {
 
       {/* CONTENEDOR PRINCIPAL */}
       <div
-        style={{
-          width: isCollapsed ? 0 : sidebarWidth,
-        }}
+        style={
+          { "--sidebar-width": `${sidebarWidth}px` } as React.CSSProperties
+        }
         className={`
           fixed md:relative top-0 left-0 h-full z-40 md:z-0 shrink-0 select-none
+          ${isCollapsed ? "w-0" : "w-(--sidebar-width)"}
           ${!isDragging ? "transition-[width,transform] duration-300 ease-in-out" : ""}
-          ${isCollapsed ? "-translate-x-full md:translate-x-0" : "translate-x-0"}
+          translate-x-0
         `}
       >
         {/* Sidebar Content */}
         <aside
-          style={{ width: sidebarWidth }}
-          className="w-full border-r border-neon-cyan/20 bg-[#0d111a]/95 md:bg-cyber-card/40 p-4 flex flex-col justify-between h-full absolute top-0 left-0 transition-transform duration-300 ease-in-out backdrop-blur-md md:backdrop-blur-none"
+          className={`w-(--sidebar-width) max-w-[calc(100vw-2rem)] border-r border-neon-cyan/20 bg-[#0d111a]/95 md:bg-cyber-card/40 p-4 flex flex-col justify-between h-full absolute top-0 left-0 transition-transform duration-300 ease-in-out backdrop-blur-md md:backdrop-blur-none ${
+            isCollapsed ? "-translate-x-full" : "translate-x-0"
+          }`}
         >
           <div className="flex flex-col gap-4 overflow-y-auto h-full min-w-37.5">
             {/* Header */}
@@ -137,8 +143,8 @@ export default function Sidebar() {
         {/* DRAG STRIP & TOGGLE BUTTON */}
         <div
           onMouseDown={startResizing}
-          style={{ left: sidebarWidth - 3 }}
-          className={`absolute top-0 w-1.5 h-full cursor-ew-resize bg-transparent hover:bg-neon-magenta/40 z-50 group flex items-center justify-center ${
+          style={{ left: isCollapsed ? 0 : sidebarWidth - 3 }}
+          className={`hidden md:flex absolute top-0 w-1.5 h-full cursor-ew-resize bg-transparent hover:bg-neon-magenta/40 z-50 group items-center justify-center ${
             !isDragging ? "transition-[left] duration-300 ease-in-out" : ""
           }`}
         >
@@ -148,15 +154,22 @@ export default function Sidebar() {
               toggleCollapse();
             }}
             className="absolute w-4 h-8 bg-black border border-neon-magenta/30 text-neon-magenta/70 text-[8px] font-mono flex items-center justify-center rounded transition-all duration-200 cursor-pointer hover:border-neon-magenta hover:text-neon-magenta hover:shadow-[0_0_12px_rgba(236,72,153,0.5)] z-50"
-            style={{
-              transform: isCollapsed ? "translateX(16px)" : "translateX(1px)",
-            }}
+            style={{ transform: "translateX(1px)" }}
             title={isCollapsed ? "Deploy" : "Collapse"}
           >
             {isCollapsed ? "▶" : "◀"}
           </button>
         </div>
       </div>
+
+      <button
+        onClick={toggleCollapse}
+        className="md:hidden fixed left-2 top-20 z-50 flex h-9 w-9 items-center justify-center rounded border border-neon-magenta/50 bg-black/90 text-neon-magenta shadow-[0_0_12px_rgba(236,72,153,0.3)]"
+        title={isCollapsed ? "Open projects" : "Close projects"}
+        aria-label={isCollapsed ? "Open projects" : "Close projects"}
+      >
+        {isCollapsed ? "▶" : "◀"}
+      </button>
     </>
   );
 }

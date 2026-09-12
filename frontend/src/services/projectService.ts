@@ -38,3 +38,15 @@ export const deleteTaskApi = async (projectId: string, taskId: string): Promise<
 export const updateTaskApi = async (projectId: string, taskId: string, data: Partial<Task>): Promise<void> => {
   await api.put(`/projects/${projectId}/tasks/${taskId}`, data);
 };
+
+// --- Member API Requests ---
+
+export const getProjectMembersApi = async (projectId: string): Promise<{_id: string; username: string; email: string }[]> => {
+  const response = await api.get(`/projects/${projectId}/members`);
+  return response.data;
+}
+
+export const inviteMemberApi = async (projectId: string, email: string): Promise<{ message: string }> => {
+  const response = await api.post(`/projects/${projectId}/members`, { email });
+  return response.data;
+}

@@ -14,7 +14,7 @@ export type Task = {
   assignee?: {
     id?: string;
     _id?: string;
-    name: string;
-    initials: string;
+    username: string;
+    email: string;
   };
 };

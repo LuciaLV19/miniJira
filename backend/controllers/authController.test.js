@@ -28,6 +28,7 @@ describe("authController", () => {
         username: "testuser",
         email: "test@example.com",
         password: "password123",
+        confirmPassword: "password123",
       };
 
       const newUser = {
@@ -58,6 +59,7 @@ describe("authController", () => {
         username: "testuser",
         email: "existing@example.com",
         password: "password123",
+        confirmPassword: "password123",
       };
 
       vi.mocked(User.findOne).mockResolvedValue({
@@ -82,6 +84,44 @@ describe("authController", () => {
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({
         message: "Please fill in all fields",
+      });
+    });
+
+    it("debería retornar error si las contrasenas no coinciden", async () => {
+      req.body = {
+        email: "test@example.com",
+        password: "wrongpassword",
+        confirmPassword: "differentpassword",
+      };
+
+      vi.mocked(User.findOne).mockResolvedValue(null);
+
+      await authController.loginUser(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Invalid email or password",
+      });
+    });
+
+    it("debería retornar error si el email ya existe", async () => {
+      req.body = {
+        username: "testuser",
+        email: "test@example.com",
+        password: "Password123!",
+        confirmPassword: "Password123!",
+      };
+
+      vi.mocked(User.findOne).mockResolvedValue({
+        _id: "existing_id",
+        email: "test@example.com",
+      });
+
+      await authController.registerUser(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "User already exists",
       });
     });
   });

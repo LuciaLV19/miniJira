@@ -6,32 +6,37 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-black/80 backdrop-blur-md border-b border-neon-cyan/30 shadow-[0_1px_10px_rgba(6,182,212,0.15)]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-14">
+      <div className="mx-auto w-full max-w-7xl px-3 sm:px-6 lg:px-8">
+        <div className="flex h-14 min-w-0 items-center justify-between gap-3">
           {/* Logo y Nombre del Terminal */}
-          <Link to="/" className="flex items-center gap-3 select-none group">
-            <div className="w-8 h-8 rounded border border-neon-cyan/40 bg-neon-cyan/5 flex items-center justify-center font-mono text-sm font-black text-neon-cyan transition-all duration-300 group-hover:border-neon-cyan group-hover:shadow-[0_0_10px_rgba(6,182,212,0.6)] group-hover:bg-neon-cyan/10">
+          <Link
+            to="/"
+            className="flex min-w-0 shrink items-center gap-2 select-none group sm:gap-3"
+          >
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded border border-neon-cyan/40 bg-neon-cyan/5 font-mono text-sm font-black text-neon-cyan transition-all duration-300 group-hover:border-neon-cyan group-hover:shadow-[0_0_10px_rgba(6,182,212,0.6)] group-hover:bg-neon-cyan/10">
               ⎔
             </div>
 
-            <div className="flex flex-col">
-              <span className="text-[14px] font-mono font-black text-neon-cyan tracking-widest uppercase transition-all duration-300 group-hover:text-white">
+            <div className="flex min-w-0 flex-col">
+              <span className="truncate text-[12px] font-mono font-black text-neon-cyan tracking-widest uppercase transition-all duration-300 group-hover:text-white sm:text-[14px]">
                 KRONOS_OS
               </span>
-              <span className="text-[8px] font-mono text-neon-cyan/40 tracking-wider -mt-0.5">
+              <span className="hidden text-[8px] font-mono text-neon-cyan/40 tracking-wider -mt-0.5 sm:block">
                 SYS_STATUS: CORE_ONLINE
               </span>
             </div>
           </Link>
 
           {/* Network Module of the Terminal */}
-          <div className="hidden sm:flex items-center gap-2 font-mono text-[10px] text-neon-cyan/60 bg-neon-cyan/5 border border-neon-cyan/20 px-2.5 py-1 rounded shadow-[inset_0_0_4px_rgba(6,182,212,0.05)]">
+          <div className="hidden sm:flex min-w-0 items-center justify-center gap-1.5 font-mono text-[11px] text-neon-cyan/60 bg-neon-cyan/5 border border-neon-cyan/20 px-2 py-0.5 rounded shadow-[inset_0_0_4px_rgba(6,182,212,0.05)] mx-auto w-fit">
             <span className="w-1.5 h-1.5 rounded-full bg-neon-cyan animate-pulse"></span>
-            <span className="tracking-widest">NODE_01 // SECURE_LINK</span>
+            <span className="truncate tracking-widest">
+              NODE_01 // SECURE_LINK
+            </span>
           </div>
 
           {/* MÓDULO DE USUARIO (Acceso al perfil mediante icono) */}
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-3">
             {user ? (
               <div className="flex items-center gap-2">
                 {/* ICONO DE PERFIL (Redirige a /profile) */}
@@ -63,7 +68,7 @@ export default function Header() {
             ) : (
               <Link
                 to="/login"
-                className="px-3 py-1.5 rounded border border-neon-cyan/50 text-neon-cyan font-mono text-xs hover:bg-neon-cyan/20 transition-all duration-200"
+                className="rounded border border-neon-cyan/50 px-2 py-1.5 text-[10px] text-neon-cyan font-mono hover:bg-neon-cyan/20 transition-all duration-200 sm:px-3 sm:text-xs"
               >
                 [ LOGIN ]
               </Link>

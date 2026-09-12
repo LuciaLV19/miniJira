@@ -202,10 +202,8 @@ export default function TaskCard({ task }: { task: Task }) {
             {task.assignee ? (
               <div
                 className="h-5 w-5 rounded bg-neon-cyan/20 border border-neon-cyan text-neon-cyan flex items-center justify-center text-[9px] font-black shadow-sm"
-                title={task.assignee.name}
-              >
-                {task.assignee.initials.toUpperCase()}
-              </div>
+                title={task.assignee.username}
+              ></div>
             ) : (
               <div
                 className="h-5 w-5 rounded border border-white/10 border-dashed flex items-center justify-center text-[9px] font-medium text-white/20"

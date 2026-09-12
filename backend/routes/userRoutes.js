@@ -14,7 +14,7 @@ import {
 const router = express.Router();
 
 router
-  .route("/")
+  .route("/profile")
   .get(protect, getUser)
   .put(protect, validate(updateUserSchema), updateUser);
 

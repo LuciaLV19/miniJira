@@ -17,6 +17,7 @@ export interface RegisterCredentials {
   username: string;
   email: string;
   password?: string;
+  confirmPassword?: string;
 }
 
 export interface UpdateProfileData {
@@ -27,6 +28,7 @@ export interface UpdateProfileData {
 export interface ChangePasswordData {
   currentPassword?: string;
   newPassword?: string;
+  confirmPassword?: string;
 }
 
 // --- Authentication ---
@@ -57,3 +59,4 @@ export const changePasswordApi = async (passwords: ChangePasswordData): Promise<
   const response = await api.put("/users/profile/password", passwords);
   return response.data;
 };
+

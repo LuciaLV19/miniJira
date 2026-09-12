@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useProjectStore } from "../../store/useProjectStore";
 import type { Priority } from "../../types/Task";
 import { useParams } from "react-router-dom";
+import { getProjectMembersApi } from "../../services/projectService";
 
 /**
  * Modal component responsible for creating new tasks or editing existing ones
@@ -20,11 +21,9 @@ export default function CreateTaskModal() {
   const taskId = taskToEdit?.id || taskToEdit?._id;
 
   // Mocked list of available team members for task assignment
-  const TEAM_MEMBERS = [
-    { id: "u1", name: "Alex Hacker", initials: "AH" },
-    { id: "u2", name: "Sora Cyber", initials: "SC" },
-    { id: "u3", name: "Neo Matrix", initials: "NM" },
-  ];
+  const [members, setMembers] = useState<
+    { _id: string; username: string; email: string }[]
+  >([]);
 
   // Local state initialized with task data if in edit mode, or default empty values
   const [error, setError] = useState("");
@@ -38,6 +37,23 @@ export default function CreateTaskModal() {
   const [taskCategory, setTaskCategory] = useState(taskToEdit?.category ?? "");
   const [taskDueDate, setTaskDueDate] = useState(taskToEdit?.dueDate ?? "");
   const [taskAssignee, setTaskAssignee] = useState(taskToEdit?.assignee);
+
+  useEffect(() => {
+    const fetchMembers = async () => {
+      if (projectId || isOpen) {
+        try {
+          const memberData = await getProjectMembersApi(
+            projectId || activeProjectId!,
+          );
+          setMembers(memberData);
+        } catch (err) {
+          console.error("Error fetching project members:", err);
+        }
+      }
+    };
+
+    fetchMembers();
+  }, [projectId, isOpen, activeProjectId]);
 
   /**
    * Handles form validation, task creation or update dispatch, and modal dismissal.
@@ -161,18 +177,18 @@ export default function CreateTaskModal() {
               <select
                 id="assignee"
                 className="w-full bg-black border border-neon-magenta/60 p-2 rounded text-white focus:outline-none focus:border-neon-magenta focus:shadow-[0_0_8px_rgba(236,72,153,0.25)] transition-all duration-200"
-                value={taskAssignee?.id || ""}
+                value={taskAssignee?.id || taskAssignee?._id || ""}
                 onChange={(e) => {
-                  const selectedMember = TEAM_MEMBERS.find(
-                    (member) => member.id === e.target.value,
+                  const selectedMember = members.find(
+                    (member) => member._id === e.target.value,
                   );
                   setTaskAssignee(selectedMember);
                 }}
               >
                 <option value="">Select Assignee</option>
-                {TEAM_MEMBERS.map((member) => (
-                  <option key={member.id} value={member.id}>
-                    {member.name} ({member.initials})
+                {members.map((member) => (
+                  <option key={member._id} value={member._id}>
+                    {member.username}
                   </option>
                 ))}
               </select>

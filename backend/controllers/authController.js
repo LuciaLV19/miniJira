@@ -12,10 +12,14 @@ const generateToken = (id) => {
 // @route   POST /api/auth/register
 export const registerUser = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, confirmPassword } = req.body;
 
-    if (!username || !email || !password) {
+    if (!username || !email || !password || !confirmPassword) {
       return res.status(400).json({ message: "Please fill in all fields" });
+    }
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match" });
     }
 
     const userExists = await User.findOne({ email });

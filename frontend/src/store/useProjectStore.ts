@@ -25,7 +25,7 @@ export interface CreateTaskInput {
   priority: Priority;
   dueDate: string;
   category: string;
-  assignee?: { id?: string; _id?: string; name: string; initials: string };
+  assignee?: { id?: string; _id?: string; username: string; email: string };
 }
 
 interface ProjectState {

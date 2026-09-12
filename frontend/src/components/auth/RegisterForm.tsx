@@ -56,7 +56,7 @@ export default function RegisterForm() {
 
     setLoading(true);
     try {
-      await register({ username, email, password });
+      await register({ username, email, password, confirmPassword });
       navigate("/"); // Redirect to dashboard after successful registration
     } catch (error: unknown) {
       if (isAxiosError(error)) {

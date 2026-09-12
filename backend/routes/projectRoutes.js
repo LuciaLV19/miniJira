@@ -12,6 +12,8 @@ import {
   createProject,
   deleteProject,
   updateProject,
+  getProjectMembers,
+  inviteMember,
 } from "../controllers/projectController.js";
 
 const router = express.Router();
@@ -26,6 +28,10 @@ router
   .delete(protect, deleteProject)
   .put(protect, validate(updateProjectSchema), updateProject);
 
-router.use("/:projectId/tasks", taskRoutes);
+router
+  .route("/:projectId/members")
+  .get(protect, getProjectMembers)
+  .post(protect, inviteMember);
 
+router.use("/:projectId/tasks", taskRoutes);
 export default router;
