@@ -33,7 +33,6 @@ export interface ChangePasswordData {
 
 export interface PasswordResetResponse {
   message: string;
-  resetToken?: string;
 }
 
 // --- Authentication ---

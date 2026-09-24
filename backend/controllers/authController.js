@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import { sendPasswordResetEmail } from "../services/emailService.js";
 
 // Generate JWT Token valid for 30 days
 const generateToken = (id) => {
@@ -78,7 +79,7 @@ export const requestPasswordReset = async (req, res) => {
     const user = await User.findOne({ email });
     const response = {
       message:
-        "If an account exists for that email, reset instructions have been created.",
+        "If an account exists for that email, reset instructions have been sent.",
     };
 
     if (!user) return res.json(response);
@@ -91,8 +92,18 @@ export const requestPasswordReset = async (req, res) => {
     user.passwordResetExpires = Date.now() + 15 * 60 * 1000;
     await user.save();
 
-    if (process.env.NODE_ENV !== "production") {
-      response.resetToken = resetToken;
+    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+    try {
+      await sendPasswordResetEmail({
+        email: user.email,
+        username: user.username,
+        resetUrl,
+      });
+    } catch (emailError) {
+      user.passwordResetToken = null;
+      user.passwordResetExpires = null;
+      await user.save();
+      throw emailError;
     }
 
     res.json(response);

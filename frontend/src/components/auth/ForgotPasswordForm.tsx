@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Mail, Loader2 } from "lucide-react";
 import { isAxiosError } from "axios";
-import { useNavigate } from "react-router-dom";
 import { requestPasswordResetApi } from "../../services/authService";
 
 export default function ForgotPasswordForm() {
@@ -9,7 +8,6 @@ export default function ForgotPasswordForm() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -19,9 +17,6 @@ export default function ForgotPasswordForm() {
     try {
       const response = await requestPasswordResetApi(email);
       setMessage(response.message);
-      if (response.resetToken) {
-        navigate(`/reset-password/${response.resetToken}`);
-      }
     } catch (requestError) {
       setError(
         isAxiosError(requestError)
