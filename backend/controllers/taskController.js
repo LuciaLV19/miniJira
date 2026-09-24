@@ -27,7 +27,12 @@ export const getTasks = async (req, res, next) => {
 // @route   POST /api/tasks
 export const createTask = async (req, res, next) => {
   try {
-    const { title, description, status, priority, tags, assignedTo } = req.body;
+    const { title, description, status, priority, tags } = req.body;
+    const assignedTo =
+      req.body.assignedTo ||
+      req.body.assignee?._id ||
+      req.body.assignee?.id ||
+      null;
 
     const project = req.params.projectId ?? req.params.id;
 
@@ -51,7 +56,16 @@ export const createTask = async (req, res, next) => {
       $push: { tasks: createdTask._id },
     });
 
-    res.status(201).json(createdTask);
+    if (createdTask.populate) {
+      await createdTask.populate("assignedTo", "_id username email");
+    }
+    const serializedTask = createdTask.toObject
+      ? createdTask.toObject()
+      : createdTask;
+    res.status(201).json({
+      ...serializedTask,
+      assignee: createdTask.assignedTo || null,
+    });
   } catch (error) {
     next(error);
   }
@@ -80,15 +94,31 @@ export const updateTask = async (req, res, next) => {
         .json({ message: "Not authorized to update this task" });
     }
 
+    const updateData = { ...req.body };
+    if (updateData.assignee !== undefined) {
+      updateData.assignedTo =
+        updateData.assignee?._id ||
+        updateData.assignee?.id ||
+        updateData.assignee ||
+        null;
+      delete updateData.assignee;
+    }
+
     const updatedTask = await Task.findByIdAndUpdate(
       req.params.taskId,
-      req.body,
+      updateData,
       {
         new: true,
       },
     );
 
-    res.json(updatedTask);
+    if (updatedTask.populate) {
+      await updatedTask.populate("assignedTo", "_id username email");
+    }
+    const serializedTask = updatedTask.toObject
+      ? updatedTask.toObject()
+      : updatedTask;
+    res.json({ ...serializedTask, assignee: updatedTask.assignedTo || null });
   } catch (error) {
     next(error);
   }

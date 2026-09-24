@@ -40,6 +40,7 @@ export default function Sidebar() {
       localStorage.setItem("sidebarWidth", newWidth.toString());
     };
 
+    // Function to handle mouse up event and stop resizing
     const handleMouseUp = () => {
       isResizing.current = false;
       setIsDragging(false);
@@ -70,13 +71,28 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* CAPA OSCURA (Backdrop) EN MÓVILES: Permite cerrar el Sidebar tocando fuera */}
+      {/* CAPA OSCURA (Backdrop) EN MÓVILES */}
       {!isCollapsed && (
         <div
           onClick={toggleCollapse}
           className="md:hidden fixed inset-0 bg-black/70 backdrop-blur-xs z-30 transition-opacity"
         />
       )}
+
+      {/* BOTÓN FLOTANTE MÓVIL (Siempre visible en z-50) */}
+      <button
+        onClick={toggleCollapse}
+        style={{
+          left: isCollapsed
+            ? "12px"
+            : `calc(min(85vw, ${sidebarWidth}px) + 12px)`,
+        }}
+        className="md:hidden fixed top-18 z-50 flex h-9 w-9 items-center justify-center rounded border border-neon-magenta/50 bg-[#0d111a] text-neon-magenta shadow-[0_0_12px_rgba(236,72,153,0.4)] cursor-pointer transition-all duration-300 ease-in-out active:scale-95"
+        title={isCollapsed ? "Open projects" : "Close projects"}
+        aria-label={isCollapsed ? "Open projects" : "Close projects"}
+      >
+        {isCollapsed ? "▶" : "◀"}
+      </button>
 
       {/* CONTENEDOR PRINCIPAL */}
       <div
@@ -92,7 +108,7 @@ export default function Sidebar() {
       >
         {/* Sidebar Content */}
         <aside
-          className={`w-(--sidebar-width) max-w-[calc(100vw-2rem)] border-r border-neon-cyan/20 bg-[#0d111a]/95 md:bg-cyber-card/40 p-4 flex flex-col justify-between h-full absolute top-0 left-0 transition-transform duration-300 ease-in-out backdrop-blur-md md:backdrop-blur-none ${
+          className={`w-[min(85vw,var(--sidebar-width))] md:w-(--sidebar-width) max-w-[calc(100vw-4rem)] border-r border-neon-cyan/20 bg-[#0d111a] md:bg-cyber-card/40 p-4 flex flex-col justify-between h-full absolute top-0 left-0 transition-transform duration-300 ease-in-out backdrop-blur-md md:backdrop-blur-none ${
             isCollapsed ? "-translate-x-full" : "translate-x-0"
           }`}
         >
@@ -140,7 +156,7 @@ export default function Sidebar() {
           </div>
         </aside>
 
-        {/* DRAG STRIP & TOGGLE BUTTON */}
+        {/* DRAG STRIP & TOGGLE BUTTON (ESCRITORIO) */}
         <div
           onMouseDown={startResizing}
           style={{ left: isCollapsed ? 0 : sidebarWidth - 3 }}
@@ -161,15 +177,6 @@ export default function Sidebar() {
           </button>
         </div>
       </div>
-
-      <button
-        onClick={toggleCollapse}
-        className="md:hidden fixed left-2 top-20 z-50 flex h-9 w-9 items-center justify-center rounded border border-neon-magenta/50 bg-black/90 text-neon-magenta shadow-[0_0_12px_rgba(236,72,153,0.3)]"
-        title={isCollapsed ? "Open projects" : "Close projects"}
-        aria-label={isCollapsed ? "Open projects" : "Close projects"}
-      >
-        {isCollapsed ? "▶" : "◀"}
-      </button>
     </>
   );
 }

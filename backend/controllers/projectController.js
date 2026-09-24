@@ -1,13 +1,19 @@
 import Project from "../models/Project.js";
 import Task from "../models/Task.js";
+import User from "../models/User.js";
 
 // @desc    Get all projects for the logged in user
 // @route   GET /api/projects
 export const getProjects = async (req, res, next) => {
   try {
-    const projectQuery = Project.find({ createdBy: req.user._id });
+    const projectQuery = Project.find({
+      $or: [{ createdBy: req.user._id }, { members: req.user._id }],
+    });
     const populatedQuery = projectQuery?.populate
-      ? projectQuery.populate("tasks")
+      ? projectQuery.populate({
+          path: "tasks",
+          populate: { path: "assignedTo", select: "_id username email" },
+        })
       : projectQuery;
     const sortedQuery = populatedQuery?.sort
       ? populatedQuery.sort({ createdAt: -1 })
@@ -111,14 +117,25 @@ export const inviteMember = async (req, res) => {
       return res.status(404).json({ message: "Project not found" });
     }
 
-    const userToInvite = await User.findOne({ email });
+    if (project.createdBy.toString() !== req.user._id.toString()) {
+      return res
+        .status(403)
+        .json({ message: "Only the project owner can invite members" });
+    }
+
+    const userToInvite = await User.findOne({
+      email: email?.trim().toLowerCase(),
+    });
     if (!userToInvite) {
       return res
         .status(404)
         .json({ message: "User with this email not found" });
     }
 
-    if (project.members.includes(userToInvite._id)) {
+    if (
+      project.createdBy.equals(userToInvite._id) ||
+      project.members.some((memberId) => memberId.equals(userToInvite._id))
+    ) {
       return res
         .status(400)
         .json({ message: "User is already a member of this project" });
@@ -152,7 +169,18 @@ export const getProjectMembers = async (req, res) => {
       return res.status(404).json({ message: "Project not found" });
     }
 
-    res.json(project.members);
+    const owner = await User.findById(project.createdBy).select(
+      "_id username email",
+    );
+    const members = [owner, ...project.members].filter(Boolean);
+    res.json(
+      members.filter(
+        (member, index, allMembers) =>
+          allMembers.findIndex((candidate) =>
+            candidate._id.equals(member._id),
+          ) === index,
+      ),
+    );
   } catch (error) {
     res
       .status(500)

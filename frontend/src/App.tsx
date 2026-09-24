@@ -7,6 +7,7 @@ import Layout from "./components/layouts/Layout";
 import { Toaster } from "sonner";
 import LoginPage from "./components/views/LoginPage";
 import UserProfile from "./components/views/UserProfile";
+import ResetPasswordPage from "./components/views/ResetPasswordPage";
 
 function App() {
   return (
@@ -16,10 +17,11 @@ function App() {
           <Route element={<Layout />}>
             <Route index element={<Home />} />
             <Route path="project/:projectId" element={<ProjectView />} />
-            <Route path="user" element={<UserProfile />} />
+            <Route path="/user" element={<UserProfile />} />
           </Route>
         </Route>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
         <Route
           path="*"
           element={<div className="p-6">Ruta no encontrada</div>}

@@ -20,7 +20,6 @@ export default function CreateTaskModal() {
   const { projectId } = useParams<{ projectId: string }>();
   const taskId = taskToEdit?.id || taskToEdit?._id;
 
-  // Mocked list of available team members for task assignment
   const [members, setMembers] = useState<
     { _id: string; username: string; email: string }[]
   >([]);
@@ -108,7 +107,7 @@ export default function CreateTaskModal() {
         isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
       }`}
     >
-      <div className="bg-black border border-neon-cyan/40 p-6 rounded shadow-[0_0_20px_rgba(6,182,212,0.15)] min-w-95 max-w-md w-full font-mono text-xs relative overflow-hidden">
+      <div className="bg-black border border-neon-cyan/40 p-4 sm:p-6 rounded shadow-[0_0_20px_rgba(6,182,212,0.15)] min-w-0 w-[calc(100%-2rem)] max-w-md max-h-[calc(100vh-2rem)] overflow-y-auto font-mono text-xs relative">
         <h2 className="text-sm font-black text-neon-cyan tracking-widest uppercase mb-4">
           {isEditMode ? "Edit Task" : "New Task"}
         </h2>
@@ -148,7 +147,7 @@ export default function CreateTaskModal() {
           </div>
 
           {/* Grid section for Priority, Assignee, Category, Due Date */}
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div className="flex flex-col gap-2">
               <label
                 htmlFor="priority"

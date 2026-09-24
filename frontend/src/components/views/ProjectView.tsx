@@ -79,19 +79,18 @@ function ProjectView() {
         <main className="flex-1 h-full overflow-y-auto bg-black border-l border-neon-cyan/10 p-4 md:p-6 font-mono text-white min-w-0 w-full">
           {/* Project Header */}
           <div className="max-w-7xl mx-auto space-y-6 border-b border-neon-cyan/20 pb-6 min-w-0">
-            <header className="flex flex-col md:grid md:grid-cols-3 gap-4 items-start md:items-center p-4 bg-[#0d111a] border border-cyan-500/20 rounded-xl min-w-0">
+            <header className="grid grid-cols-1 gap-4 items-center p-4 bg-[#0d111a] border border-cyan-500/20 rounded-xl min-w-0 md:grid-cols-[minmax(170px,1fr)_minmax(130px,280px)_auto]">
               {/* Column 1 (Phone}): Project Title and Task Counter */}
-              <div className="flex items-start justify-between w-full min-w-0 gap-2">
+              <div className="flex items-start justify-between min-w-0 gap-2">
                 <div className="flex flex-col items-start min-w-0 flex-1">
                   <span className="text-[10px] text-neon-cyan/50 uppercase truncate w-full whitespace-nowrap block">
                     // ACTIVE_CONTRACT
                   </span>
-                  <h1 className="text-xl md:text-2xl font-black text-neon-cyan uppercase tracking-wider truncate w-full">
+                  <h1 className="text-xl md:text-2xl font-black text-neon-cyan uppercase wrap-break-word w-full">
                     {projectSelected.name}
                   </h1>
                 </div>
               </div>
-
               {/* Column 2 (Phone}): Search Input */}
               <div className="w-full min-w-0">
                 <input
@@ -102,17 +101,16 @@ function ProjectView() {
                   className="w-full bg-black/50 border border-neon-cyan/20 rounded px-3 py-2 text-xs text-neon-cyan placeholder:text-neon-cyan/40 focus:outline-none focus:border-neon-cyan"
                 />
               </div>
-
               {/* Project actions */}
               <div
                 aria-label="Project actions"
-                className="flex w-full min-w-0 items-center justify-end gap-2 self-end rounded-lg border border-white/10 bg-black/30 p-1.5 md:w-auto md:max-w-none md:justify-self-end"
+                className="flex w-full min-w-0 flex-wrap items-center justify-end gap-2 rounded-lg border border-white/10 bg-black/30 p-1.5 md:w-auto md:flex-nowrap"
               >
-                <div className="flex min-w-0 flex-1 items-center gap-2 px-1.5">
-                  <span className="hidden truncate text-[9px] font-bold uppercase tracking-wider text-white/50 lg:block">
+                <div className="flex shrink-0 items-center gap-2 px-1.5">
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-white/50">
                     Task control
                   </span>
-                  <span className="ml-auto shrink-0 text-[10px] font-bold text-neon-cyan">
+                  <span className="shrink-0 whitespace-nowrap text-[10px] font-bold text-neon-cyan">
                     {totalTasksCount}
                   </span>
                 </div>

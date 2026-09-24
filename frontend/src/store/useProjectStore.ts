@@ -9,6 +9,7 @@ const normalizeTask = (task: Task): Task => ({
   ...task,
   id: task._id || task.id || "",
   _id: task._id,
+  assignee: task.assignee || (task as Task & { assignedTo?: Task["assignee"] }).assignedTo,
 });
 
 const normalizeProject = (project: Project): Project => ({
@@ -222,14 +223,14 @@ export const useProjectStore = create<ProjectState>()(
 
       updateTask: async (projectId, taskId, data) => {
         try {
-          await projectApi.updateTaskApi(projectId, taskId, data);
+          const updatedTask = normalizeTask(await projectApi.updateTaskApi(projectId, taskId, data));
           set((state) => ({
             projects: state.projects.map((p) =>
               p.id === projectId || p._id === projectId
                 ? {
                     ...p,
                     tasks: (p.tasks || []).map((t) =>
-                      t.id === taskId || t._id === taskId ? normalizeTask({ ...t, ...data }) : t
+                      t.id === taskId || t._id === taskId ? updatedTask : t
                     ),
                   }
                 : p

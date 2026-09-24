@@ -1,9 +1,19 @@
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../../store/useAuthStore";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function Header() {
   const { user } = useAuthStore();
+  const location = useLocation();
+  const navigate = useNavigate();
 
+  const handleProfileClick = () => {
+    if (location.pathname === "/user") {
+      navigate("/");
+    } else {
+      navigate("/user");
+    }
+  };
   return (
     <header className="sticky top-0 z-50 w-full bg-black/80 backdrop-blur-md border-b border-neon-cyan/30 shadow-[0_1px_10px_rgba(6,182,212,0.15)]">
       <div className="mx-auto w-full max-w-7xl px-3 sm:px-6 lg:px-8">
@@ -40,8 +50,8 @@ export default function Header() {
             {user ? (
               <div className="flex items-center gap-2">
                 {/* ICONO DE PERFIL (Redirige a /profile) */}
-                <Link
-                  to="/user"
+                <button
+                  onClick={() => handleProfileClick()}
                   title="Acceder al Perfil de Usuario"
                   className="group relative flex items-center justify-center w-7 h-7 rounded border border-neon-cyan/40 bg-neon-cyan/5 text-neon-cyan hover:bg-neon-cyan/20 hover:border-neon-cyan hover:shadow-[0_0_12px_rgba(6,182,212,0.5)] transition-all duration-300"
                 >
@@ -63,7 +73,7 @@ export default function Header() {
 
                   {/* Indicador de estado en línea */}
                   <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 border border-black shadow-[0_0_5px_rgba(52,211,153,0.8)]"></span>
-                </Link>
+                </button>
               </div>
             ) : (
               <Link

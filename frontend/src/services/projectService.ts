@@ -27,7 +27,11 @@ export const updateProjectApi = async (projectId: string, data: Partial<Project>
 // --- Task API Requests ---
 
 export const createTaskApi = async (projectId: string, task: CreateTaskInput): Promise<Task> => {
-  const response = await api.post(`/projects/${projectId}/tasks`, task);
+  const { assignee, ...taskData } = task;
+  const response = await api.post(`/projects/${projectId}/tasks`, {
+    ...taskData,
+    assignedTo: assignee?._id || assignee?.id || null,
+  });
   return response.data;
 };
 
@@ -35,8 +39,15 @@ export const deleteTaskApi = async (projectId: string, taskId: string): Promise<
   await api.delete(`/projects/${projectId}/tasks/${taskId}`);
 };
 
-export const updateTaskApi = async (projectId: string, taskId: string, data: Partial<Task>): Promise<void> => {
-  await api.put(`/projects/${projectId}/tasks/${taskId}`, data);
+export const updateTaskApi = async (projectId: string, taskId: string, data: Partial<Task>): Promise<Task> => {
+  const { assignee, ...taskData } = data;
+  const response = await api.put(`/projects/${projectId}/tasks/${taskId}`, {
+    ...taskData,
+    ...(assignee !== undefined && {
+      assignedTo: assignee?._id || assignee?.id || null,
+    }),
+  });
+  return response.data;
 };
 
 // --- Member API Requests ---

@@ -2,9 +2,11 @@ import { useState } from "react";
 import { ShieldAlert } from "lucide-react";
 import LoginForm from "../auth/LoginForm";
 import RegisterForm from "../auth/RegisterForm";
+import ForgotPasswordForm from "../auth/ForgotPasswordForm";
 
 export default function LoginPage() {
-  const [isLogin, setIsLogin] = useState(true);
+  const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
+  const isLogin = mode === "login";
 
   return (
     <div className="min-h-screen w-full bg-[#0a0d14] flex items-center justify-center p-4 relative overflow-hidden font-sans">
@@ -20,29 +22,63 @@ export default function LoginPage() {
             <ShieldAlert className="w-6 h-6" />
           </div>
           <h1 className="text-2xl font-bold tracking-wider text-white font-mono uppercase">
-            {isLogin ? "SYSTEM_ACCESS" : "NEW_OPERATIVE"}
+            {mode === "forgot"
+              ? "PASSWORD_RECOVERY"
+              : isLogin
+                ? "SYSTEM_ACCESS"
+                : "NEW_OPERATIVE"}
           </h1>
           <p className="text-xs text-slate-400 font-mono mt-1">
-            {isLogin
-              ? "Enter your network credentials"
-              : "Create a new identity in the system"}
+            {mode === "forgot"
+              ? "Recover access to your account"
+              : isLogin
+                ? "Enter your network credentials"
+                : "Create a new identity in the system"}
           </p>
         </div>
 
         {/* Dynamic Component Rendering */}
-        {isLogin ? <LoginForm /> : <RegisterForm />}
+        {mode === "forgot" ? (
+          <ForgotPasswordForm />
+        ) : isLogin ? (
+          <LoginForm />
+        ) : (
+          <RegisterForm />
+        )}
 
         {/* Toggle Form Switch */}
         <div className="mt-6 text-center">
-          <button
-            type="button"
-            onClick={() => setIsLogin(!isLogin)}
-            className="text-xs font-mono text-slate-400 hover:text-cyan-400 transition-colors underline underline-offset-4 cursor-pointer"
-          >
-            {isLogin
-              ? "Don't have an account? Register here"
-              : "Already registered? Access system"}
-          </button>
+          {isLogin && (
+            <button
+              type="button"
+              onClick={() => setMode("forgot")}
+              className="mb-3 block w-full text-xs font-mono text-cyan-400 hover:text-cyan-300 transition-colors underline underline-offset-4 cursor-pointer"
+            >
+              Forgot your password?
+            </button>
+          )}
+          {mode !== "forgot" && (
+            <button
+              type="button"
+              onClick={() =>
+                setMode(mode === "register" ? "login" : "register")
+              }
+              className="text-xs font-mono text-slate-400 hover:text-cyan-400 transition-colors underline underline-offset-4 cursor-pointer"
+            >
+              {isLogin
+                ? "Don't have an account? Register here"
+                : "Already registered? Access system"}
+            </button>
+          )}
+          {mode === "forgot" && (
+            <button
+              type="button"
+              onClick={() => setMode("login")}
+              className="mt-3 text-xs font-mono text-slate-400 hover:text-cyan-400 underline underline-offset-4"
+            >
+              Back to sign in
+            </button>
+          )}
         </div>
       </div>
     </div>

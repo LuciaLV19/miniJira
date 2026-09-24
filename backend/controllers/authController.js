@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
 // Generate JWT Token valid for 30 days
 const generateToken = (id) => {
@@ -68,5 +69,77 @@ export const loginUser = async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+export const requestPasswordReset = async (req, res) => {
+  try {
+    const email = req.body.email?.trim().toLowerCase();
+    const user = await User.findOne({ email });
+    const response = {
+      message:
+        "If an account exists for that email, reset instructions have been created.",
+    };
+
+    if (!user) return res.json(response);
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    user.passwordResetToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+    user.passwordResetExpires = Date.now() + 15 * 60 * 1000;
+    await user.save();
+
+    if (process.env.NODE_ENV !== "production") {
+      response.resetToken = resetToken;
+    }
+
+    res.json(response);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Unable to create password reset request" });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(req.params.token)
+      .digest("hex");
+    const user = await User.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { $gt: Date.now() },
+    });
+    const { password, confirmPassword } = req.body;
+
+    if (!user)
+      return res
+        .status(400)
+        .json({ message: "Reset link is invalid or expired" });
+    if (!password || password !== confirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match" });
+    }
+    if (
+      password.length < 8 ||
+      !/[A-Z]/.test(password) ||
+      !/[a-z]/.test(password) ||
+      !/[0-9]/.test(password) ||
+      !/[^A-Za-z0-9]/.test(password)
+    ) {
+      return res
+        .status(400)
+        .json({ message: "Password does not meet the requirements" });
+    }
+
+    user.password = password;
+    user.passwordResetToken = null;
+    user.passwordResetExpires = null;
+    await user.save();
+    res.json({ message: "Password reset successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Unable to reset password" });
   }
 };

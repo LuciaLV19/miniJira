@@ -31,10 +31,32 @@ export interface ChangePasswordData {
   confirmPassword?: string;
 }
 
+export interface PasswordResetResponse {
+  message: string;
+  resetToken?: string;
+}
+
 // --- Authentication ---
 
 export const loginApi = async (credentials: LoginCredentials): Promise<AuthResponse> => {
   const response = await api.post("/auth/login", credentials);
+  return response.data;
+};
+
+export const requestPasswordResetApi = async (email: string): Promise<PasswordResetResponse> => {
+  const response = await api.post<PasswordResetResponse>("/auth/forgot-password", { email });
+  return response.data;
+};
+
+export const resetPasswordApi = async (
+  token: string,
+  password: string,
+  confirmPassword: string,
+): Promise<{ message: string }> => {
+  const response = await api.post(`/auth/reset-password/${token}`, {
+    password,
+    confirmPassword,
+  });
   return response.data;
 };
 

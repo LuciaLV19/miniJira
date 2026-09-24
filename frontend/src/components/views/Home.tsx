@@ -17,7 +17,7 @@ export default function Home() {
       {isOpen && <CreateProjectModal />}
 
       {/* MAIN CONTENT */}
-      <div className="flex w-full h-full overflow-hidden font-terminal bg-cyber-bg text-white">
+      <div className="flex flex-1 min-h-0 w-full h-full overflow-hidden font-terminal bg-cyber-bg text-white">
         {/* SIDE BAR WITH PROJECTS LIST */}
         <Sidebar />
 
