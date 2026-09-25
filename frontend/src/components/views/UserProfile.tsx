@@ -152,18 +152,20 @@ export default function UserProfile() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6 min-h-screen pb-12">
+    <div className="max-w-4xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6 min-h-screen pb-12">
       {/* Header Profile Info */}
-      <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4 p-6 bg-[#0d111a] border border-cyan-500/20 rounded-xl shadow-[0_0_25px_rgba(0,0,0,0.5)]">
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full bg-cyan-500/10 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-mono text-2xl font-bold shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+      <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4 p-4 sm:p-6 bg-[#0d111a] border border-cyan-500/20 rounded-xl shadow-[0_0_25px_rgba(0,0,0,0.5)]">
+        <div className="flex items-center gap-4 w-full sm:w-auto">
+          <div className="w-16 h-16 rounded-full bg-cyan-500/10 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-mono text-2xl font-bold shadow-[0_0_15px_rgba(6,182,212,0.2)] shrink-0">
             {user?.username?.charAt(0).toUpperCase() || "U"}
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-slate-100 font-mono tracking-wide">
+          <div className="min-w-0">
+            <h1 className="text-xl font-bold text-slate-100 font-mono tracking-wide wrap-break-word">
               {user?.username || "Developer"}
             </h1>
-            <p className="text-xs text-slate-400 font-mono">{user?.email}</p>
+            <p className="text-xs text-slate-400 font-mono break-all">
+              {user?.email}
+            </p>
             <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded text-[10px] font-mono bg-cyan-950 text-cyan-400 border border-cyan-500/30">
               <ShieldCheck className="w-3 h-3" /> Verified User
             </span>
@@ -173,7 +175,7 @@ export default function UserProfile() {
         {/* Logout Button */}
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 px-4 py-2 bg-red-950/40 hover:bg-red-900/60 text-red-400 border border-red-500/40 hover:border-red-500 text-xs font-mono rounded-lg transition-all cursor-pointer hover:shadow-[0_0_15px_rgba(239,68,68,0.3)]"
+          className="flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-2 bg-red-950/40 hover:bg-red-900/60 text-red-400 border border-red-500/40 hover:border-red-500 text-xs font-mono rounded-lg transition-all cursor-pointer hover:shadow-[0_0_15px_rgba(239,68,68,0.3)]"
         >
           <LogOut className="w-4 h-4" />
           Logout
@@ -181,12 +183,12 @@ export default function UserProfile() {
       </div>
 
       {/* Tabs Navigation */}
-      <div className="flex border-b border-slate-800 font-mono text-xs">
+      <div className="flex overflow-x-auto border-b border-slate-800 font-mono text-xs scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-900">
         <button
           onClick={() => {
             setActiveTab("general");
           }}
-          className={`flex items-center gap-2 py-3 px-4 border-b-2 transition-all cursor-pointer ${
+          className={`flex items-center gap-2 py-3 px-4 border-b-2 transition-all cursor-pointer whitespace-nowrap ${
             activeTab === "general"
               ? "border-cyan-400 text-cyan-400 font-semibold bg-cyan-500/5"
               : "border-transparent text-slate-400 hover:text-slate-200"
@@ -199,7 +201,7 @@ export default function UserProfile() {
           onClick={() => {
             setActiveTab("security");
           }}
-          className={`flex items-center gap-2 py-3 px-4 border-b-2 transition-all cursor-pointer ${
+          className={`flex items-center gap-2 py-3 px-4 border-b-2 transition-all cursor-pointer whitespace-nowrap ${
             activeTab === "security"
               ? "border-cyan-400 text-cyan-400 font-semibold bg-cyan-500/5"
               : "border-transparent text-slate-400 hover:text-slate-200"
@@ -212,7 +214,7 @@ export default function UserProfile() {
           onClick={() => {
             setActiveTab("settings");
           }}
-          className={`flex items-center gap-2 py-3 px-4 border-b-2 transition-all cursor-pointer ${
+          className={`flex items-center gap-2 py-3 px-4 border-b-2 transition-all cursor-pointer whitespace-nowrap ${
             activeTab === "settings"
               ? "border-cyan-400 text-cyan-400 font-semibold bg-cyan-500/5"
               : "border-transparent text-slate-400 hover:text-slate-200"
@@ -226,13 +228,13 @@ export default function UserProfile() {
       {activeTab === "general" && (
         <form
           onSubmit={handleSaveProfile}
-          className="space-y-4 p-6 bg-[#0d111a] border border-slate-800 rounded-xl"
+          className="space-y-4 p-4 sm:p-6 bg-[#0d111a] border border-slate-800 rounded-xl"
         >
           <h2 className="text-sm font-mono text-cyan-400 uppercase tracking-wider mb-4">
             Personal Information
           </h2>
 
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5 max-w-xl">
             <label className="text-xs font-mono text-slate-400">Username</label>
             <div className="relative flex items-center">
               <User className="absolute left-3 w-4 h-4 text-slate-500" />
@@ -245,7 +247,7 @@ export default function UserProfile() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5 max-w-xl">
             <label className="text-xs font-mono text-slate-400">
               Email Address
             </label>
@@ -263,7 +265,7 @@ export default function UserProfile() {
           <button
             type="submit"
             disabled={loading}
-            className="flex items-center gap-2 mt-4 px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-[#0a0d14] font-mono font-bold text-xs uppercase tracking-wider rounded-lg transition-all cursor-pointer disabled:opacity-50"
+            className="flex w-full sm:w-auto items-center justify-center gap-2 mt-4 px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-[#0a0d14] font-mono font-bold text-xs uppercase tracking-wider rounded-lg transition-all cursor-pointer disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
             Save Changes
@@ -275,13 +277,13 @@ export default function UserProfile() {
       {activeTab === "security" && (
         <form
           onSubmit={handleChangePassword}
-          className="space-y-4 p-6 bg-[#0d111a] border border-slate-800 rounded-xl"
+          className="space-y-4 p-4 sm:p-6 bg-[#0d111a] border border-slate-800 rounded-xl"
         >
           <h2 className="text-sm font-mono text-cyan-400 uppercase tracking-wider mb-4">
             Change Password
           </h2>
 
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5 max-w-xl">
             <label className="text-xs font-mono text-slate-400">
               Current Password
             </label>
@@ -291,7 +293,7 @@ export default function UserProfile() {
                 type={showCurrentPassword ? "text" : "password"}
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
-                className="w-full bg-[#0a0d14] border border-cyan-500/20 rounded-lg pl-9 pr-4 py-2 text-sm text-slate-100 focus:outline-none focus:border-cyan-400 transition-all"
+                className="w-full bg-[#0a0d14] border border-cyan-500/20 rounded-lg pl-9 pr-10 py-2 text-sm text-slate-100 focus:outline-none focus:border-cyan-400 transition-all"
                 required
               />
               <button
@@ -308,7 +310,7 @@ export default function UserProfile() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5 max-w-xl">
             <label className="text-xs font-mono text-slate-400">
               New Password
             </label>
@@ -374,7 +376,7 @@ export default function UserProfile() {
             )}
           </div>
 
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5 max-w-xl">
             <label className="text-xs font-mono text-slate-400">
               Confirm New Password
             </label>
@@ -384,7 +386,7 @@ export default function UserProfile() {
                 type={showConfirmPassword ? "text" : "password"}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full bg-[#0a0d14] border border-cyan-500/20 rounded-lg pl-9 pr-4 py-2 text-sm text-slate-100 focus:outline-none focus:border-cyan-400 transition-all"
+                className="w-full bg-[#0a0d14] border border-cyan-500/20 rounded-lg pl-9 pr-10 py-2 text-sm text-slate-100 focus:outline-none focus:border-cyan-400 transition-all"
                 required
               />
               <button
@@ -400,17 +402,17 @@ export default function UserProfile() {
               </button>
             </div>
           </div>
-          <div className="flex justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2">
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center gap-2 mt-4 px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-[#0a0d14] font-mono font-bold text-xs uppercase tracking-wider rounded-lg transition-all cursor-pointer disabled:opacity-50"
+              className="flex w-full sm:w-auto items-center justify-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-[#0a0d14] font-mono font-bold text-xs uppercase tracking-wider rounded-lg transition-all cursor-pointer disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               Update Password
             </button>
             {statusMessage && (
-              <span className={`text-xs font-mono text-red-500 mt-4`}>
+              <span className="text-xs font-mono text-red-500 wrap-break-word text-left sm:text-right">
                 {statusMessage.text}
               </span>
             )}
@@ -420,13 +422,13 @@ export default function UserProfile() {
 
       {/* TAB 3: Preferences */}
       {activeTab === "settings" && (
-        <div className="p-6 bg-[#0d111a] border border-slate-800 rounded-xl space-y-4 font-mono">
+        <div className="p-4 sm:p-6 bg-[#0d111a] border border-slate-800 rounded-xl space-y-4 font-mono">
           <h2 className="text-sm text-cyan-400 uppercase tracking-wider mb-4">
             Preferences & Notifications
           </h2>
 
-          <div className="flex items-center justify-between py-2 border-b border-slate-800/80">
-            <div>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-2 border-b border-slate-800/80">
+            <div className="pr-2">
               <p className="text-xs text-slate-200">Email Notifications</p>
               <p className="text-[10px] text-slate-500">
                 Receive emails about task updates and mentions.
@@ -439,12 +441,12 @@ export default function UserProfile() {
                 setPreferences({ emailNotifications: e.target.checked })
               }
               defaultChecked
-              className="accent-cyan-500 cursor-pointer"
+              className="accent-cyan-500 cursor-pointer h-4 w-4 self-start sm:self-center"
             />
           </div>
 
-          <div className="flex items-center justify-between py-2 border-b border-slate-800/80">
-            <div>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-2 border-b border-slate-800/80">
+            <div className="pr-2">
               <p className="text-xs text-slate-200">Compact Kanban View</p>
               <p className="text-[10px] text-slate-500">
                 Show cards in a smaller format to fit more on screen.
@@ -456,7 +458,7 @@ export default function UserProfile() {
               onChange={(e) =>
                 setPreferences({ compactKanban: e.target.checked })
               }
-              className="accent-cyan-500 cursor-pointer"
+              className="accent-cyan-500 cursor-pointer h-4 w-4 self-start sm:self-center"
             />
           </div>
         </div>

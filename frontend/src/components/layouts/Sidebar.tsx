@@ -79,15 +79,15 @@ export default function Sidebar() {
         />
       )}
 
-      {/* BOTÓN FLOTANTE MÓVIL (Siempre visible en z-50) */}
+      {/* FLOATING MOBILE BUTTON */}
       <button
         onClick={toggleCollapse}
         style={{
           left: isCollapsed
-            ? "12px"
-            : `calc(min(85vw, ${sidebarWidth}px) + 12px)`,
+            ? "5px"
+            : `calc(min(85vw, ${sidebarWidth}px) + 5px)`,
         }}
-        className="md:hidden fixed top-18 z-50 flex h-9 w-9 items-center justify-center rounded border border-neon-magenta/50 bg-[#0d111a] text-neon-magenta shadow-[0_0_12px_rgba(236,72,153,0.4)] cursor-pointer transition-all duration-300 ease-in-out active:scale-95"
+        className="md:hidden fixed top-1/2 z-50 flex h-8 w-5 text-[12px] leading-none content-center items-center justify-center rounded border border-neon-magenta/50 bg-[#0d111a] text-neon-magenta shadow-[0_0_12px_rgba(236,72,153,0.4)] cursor-pointer transition-all duration-300 ease-in-out active:scale-95"
         title={isCollapsed ? "Open projects" : "Close projects"}
         aria-label={isCollapsed ? "Open projects" : "Close projects"}
       >
@@ -108,7 +108,7 @@ export default function Sidebar() {
       >
         {/* Sidebar Content */}
         <aside
-          className={`w-[min(85vw,var(--sidebar-width))] md:w-(--sidebar-width) max-w-[calc(100vw-4rem)] border-r border-neon-cyan/20 bg-[#0d111a] md:bg-cyber-card/40 p-4 flex flex-col justify-between h-full absolute top-0 left-0 transition-transform duration-300 ease-in-out backdrop-blur-md md:backdrop-blur-none ${
+          className={`w-[min(85vw,var(--sidebar-width))] min-w-62.5 md:w-(--sidebar-width) max-w-[calc(100vw-4rem)] border-r border-neon-cyan/20 bg-[#0d111a] md:bg-cyber-card/40 p-4 flex flex-col justify-between h-full absolute top-0 left-0 transition-transform duration-300 ease-in-out backdrop-blur-md md:backdrop-blur-none ${
             isCollapsed ? "-translate-x-full" : "translate-x-0"
           }`}
         >
@@ -156,7 +156,7 @@ export default function Sidebar() {
           </div>
         </aside>
 
-        {/* DRAG STRIP & TOGGLE BUTTON (ESCRITORIO) */}
+        {/* DRAG STRIP & TOGGLE BUTTON (Desktop) */}
         <div
           onMouseDown={startResizing}
           style={{ left: isCollapsed ? 0 : sidebarWidth - 3 }}
