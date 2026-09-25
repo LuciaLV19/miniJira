@@ -2,9 +2,13 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import * as authController from "../controllers/authController.js";
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
+import { sendPasswordResetEmail } from "../services/emailService.js";
 
 vi.mock("../models/User.js");
 vi.mock("jsonwebtoken");
+vi.mock("../services/emailService.js", () => ({
+  sendPasswordResetEmail: vi.fn(),
+}));
 
 describe("authController", () => {
   let req, res, next;
@@ -168,6 +172,42 @@ describe("authController", () => {
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({
         message: "Invalid email or password",
+      });
+    });
+  });
+
+  describe("requestPasswordReset", () => {
+    it("debería crear el enlace usando la URL del frontend origin en lugar de la API", async () => {
+      req = {
+        body: { email: "test@example.com" },
+        headers: { origin: "http://localhost:5173" },
+      };
+
+      const user = {
+        email: "test@example.com",
+        username: "testuser",
+        passwordResetToken: null,
+        passwordResetExpires: null,
+        save: vi.fn().mockResolvedValue(true),
+      };
+
+      vi.stubEnv("CLIENT_URL", "http://localhost:3000");
+      vi.mocked(User.findOne).mockResolvedValue(user);
+
+      await authController.requestPasswordReset(req, res, next);
+
+      expect(sendPasswordResetEmail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email: "test@example.com",
+          username: "testuser",
+          resetUrl: expect.stringContaining(
+            "http://localhost:5173/reset-password/",
+          ),
+        }),
+      );
+      expect(res.json).toHaveBeenCalledWith({
+        message:
+          "If an account exists for that email, reset instructions have been sent.",
       });
     });
   });

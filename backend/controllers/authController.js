@@ -76,6 +76,11 @@ export const loginUser = async (req, res) => {
 export const requestPasswordReset = async (req, res) => {
   try {
     const email = req.body.email?.trim().toLowerCase();
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
     const user = await User.findOne({ email });
     const response = {
       message:
@@ -92,7 +97,10 @@ export const requestPasswordReset = async (req, res) => {
     user.passwordResetExpires = Date.now() + 15 * 60 * 1000;
     await user.save();
 
-    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+    const frontendOrigin =
+      req.headers?.origin || process.env.CLIENT_URL || "http://localhost:5173";
+    const resetUrl = `${frontendOrigin.replace(/\/+$/, "")}/reset-password/${resetToken}`;
+
     try {
       await sendPasswordResetEmail({
         email: user.email,
