@@ -7,6 +7,13 @@ export type PendingInvitation = {
   invitedAt?: string;
 };
 
+export type ProjectMember = {
+  _id?: string;
+  id?: string;
+  username?: string;
+  email?: string;
+};
+
 export type Project = {
   id?: string;
   _id?: string;
@@ -16,7 +23,8 @@ export type Project = {
   key?: string;
   isFavorite: boolean;
   tasks: Task[];
-  members?: Array<{ _id?: string; id?: string; username?: string; email?: string }>;
+  createdBy?: ProjectMember | string;
+  members?: Array<ProjectMember | string>;
   pendingInvitations?: PendingInvitation[];
 };
 

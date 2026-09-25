@@ -146,11 +146,13 @@ export const InviteModal = ({
                       className="rounded border border-white/5 bg-black/20 px-2 py-1.5"
                     >
                       <p className="text-[10px] text-white">
-                        {member.username || "User"}
+                        {member.username || member.email || "Project member"}
                       </p>
-                      <p className="text-[9px] text-white/50 break-all">
-                        {member.email || "Unknown email"}
-                      </p>
+                      {member.email && (
+                        <p className="text-[9px] text-white/50 break-all">
+                          {member.email}
+                        </p>
+                      )}
                     </div>
                   ))
                 ) : (

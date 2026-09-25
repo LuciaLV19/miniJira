@@ -30,12 +30,26 @@ describe("projectController", () => {
         { _id: "proj-2", name: "Proyecto 2", createdBy: "user-123" },
       ];
 
-      vi.mocked(Project.find).mockReturnValue({
+      const query = {
+        populate: vi.fn().mockReturnThis(),
         sort: vi.fn().mockResolvedValue(projects),
-      });
+      };
+      vi.mocked(Project.find).mockReturnValue(query);
 
       await projectController.getProjects(req, res, next);
 
+      expect(query.populate).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: "createdBy",
+            select: "_id username email",
+          }),
+          expect.objectContaining({
+            path: "members",
+            select: "_id username email",
+          }),
+        ]),
+      );
       expect(res.json).toHaveBeenCalledWith(projects);
     });
 

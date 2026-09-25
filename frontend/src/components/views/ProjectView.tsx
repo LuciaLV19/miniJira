@@ -4,6 +4,11 @@ import CreateTaskModal from "../tasks/CreateTaskModal";
 import TaskBoard from "../tasks/TaskBoard";
 import { ListPlus, UsersRound } from "lucide-react";
 import { InviteModal } from "../projects/InviteModal";
+import type { ProjectMember } from "../../types/Project";
+
+const isProjectMember = (
+  member: ProjectMember | string | null | undefined,
+): member is ProjectMember => typeof member === "object" && member !== null;
 
 /**
  * ProjectView component serves as the primary view for displaying selected project details,
@@ -44,12 +49,23 @@ function ProjectView() {
   }
 
   const totalTasksCount = projectSelected.tasks?.length || 0;
-  const activeMembers = (projectSelected.members || [])
-    .filter(Boolean)
+  const activeMembers = [
+    projectSelected.createdBy,
+    ...(projectSelected.members || []),
+  ]
+    .filter(isProjectMember)
+    .filter(
+      (member, index, members) =>
+        members.findIndex(
+          (candidate) =>
+            (candidate._id || candidate.id || candidate.email) ===
+            (member._id || member.id || member.email),
+        ) === index,
+    )
     .map((member) => ({
-      id: member._id || member.id || "",
+      id: member._id || member.id || member.email || "",
       email: member.email || "",
-      username: member.username || "Unknown user",
+      username: member.username || member.email || "Project member",
     }))
     .filter((member) => member.email || member.username);
   const pendingInvitations = projectSelected.pendingInvitations || [];

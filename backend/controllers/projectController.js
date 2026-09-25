@@ -11,10 +11,14 @@ export const getProjects = async (req, res, next) => {
       $or: [{ createdBy: req.user._id }, { members: req.user._id }],
     });
     const populatedQuery = projectQuery?.populate
-      ? projectQuery.populate({
-          path: "tasks",
-          populate: { path: "assignedTo", select: "_id username email" },
-        })
+      ? projectQuery.populate([
+          { path: "createdBy", select: "_id username email" },
+          { path: "members", select: "_id username email" },
+          {
+            path: "tasks",
+            populate: { path: "assignedTo", select: "_id username email" },
+          },
+        ])
       : projectQuery;
     const sortedQuery = populatedQuery?.sort
       ? populatedQuery.sort({ createdAt: -1 })
