@@ -1,4 +1,14 @@
 import axios from "axios";
+import { useAuthStore } from "../store/useAuthStore";
+
+const getStoredToken = () => {
+  if (typeof window === "undefined") return null;
+
+  const localStorageToken = localStorage.getItem("token");
+  if (localStorageToken) return localStorageToken;
+
+  return useAuthStore.getState().token;
+};
 
 // 1. Create an Axios instance to set the base URL
 const api = axios.create({
@@ -12,10 +22,8 @@ const api = axios.create({
 // Antes de que salgan las llamadas al servidor, Axios ejecuta este código
 api.interceptors.request.use(
   (config) => {
-    // Busca si tenemos un Token guardado tras hacer Login
-    const token = localStorage.getItem("token");
+    const token = getStoredToken();
 
-    // Si existe el token, se lo añade al encabezado Authorization
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import api from "./axios";
+import { useAuthStore } from "../store/useAuthStore";
 
 describe("API Axios Client", () => {
   afterEach(() => {
@@ -53,6 +54,17 @@ describe("API Axios Client", () => {
     it("debería tener token nulo si no se ha guardado", () => {
       localStorage.clear();
       expect(localStorage.getItem("token")).toBeNull();
+    });
+
+    it("debería usar el token del store cuando localStorage está vacío", () => {
+      localStorage.clear();
+      useAuthStore.setState({ token: "store-token-123" });
+
+      const config = api.interceptors.request.handlers[0].fulfilled({
+        headers: {},
+      });
+
+      expect(config.headers.Authorization).toBe("Bearer store-token-123");
     });
   });
 });

@@ -163,7 +163,7 @@ function ProjectView() {
           )}
 
           {/* Task Board Column View */}
-          <div className="w-full overflow-x-auto pt-6">
+          <div className="max-w-7xl mx-auto w-full overflow-x-auto pt-6">
             <TaskBoard tasks={filteredTasks} />
           </div>
         </main>
