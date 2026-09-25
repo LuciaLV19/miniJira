@@ -1,8 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import * as projectController from "../controllers/projectController.js";
 import Project from "../models/Project.js";
+import User from "../models/User.js";
 
 vi.mock("../models/Project.js");
+vi.mock("../models/User.js");
 
 describe("projectController", () => {
   let req, res, next;
@@ -84,6 +86,46 @@ describe("projectController", () => {
       expect(res.json).toHaveBeenCalledWith({
         message: "Project name is required",
       });
+    });
+  });
+
+  describe("inviteMember", () => {
+    it("debería registrar la invitación como pendiente y mostrarla en la UI", async () => {
+      req.params = { projectId: "proj-123" };
+      req.body = { email: "nuevo@correo.com" };
+
+      const project = {
+        _id: "proj-123",
+        createdBy: { toString: () => "user-123" },
+        members: [],
+        pendingInvitations: [],
+        save: vi.fn().mockResolvedValue(true),
+      };
+
+      vi.mocked(Project.findById).mockResolvedValue(project);
+      vi.mocked(User.findOne).mockResolvedValue({
+        _id: "user-456",
+        username: "Nuevo Usuario",
+        email: "nuevo@correo.com",
+      });
+
+      await projectController.inviteMember(req, res);
+
+      expect(project.pendingInvitations).toContainEqual(
+        expect.objectContaining({
+          email: "nuevo@correo.com",
+          status: "pending",
+        }),
+      );
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: expect.stringContaining("Invitation sent successfully"),
+          invitation: expect.objectContaining({
+            email: "nuevo@correo.com",
+            status: "pending",
+          }),
+        }),
+      );
     });
   });
 });

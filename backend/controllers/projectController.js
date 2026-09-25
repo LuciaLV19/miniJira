@@ -109,7 +109,7 @@ export const deleteProject = async (req, res, next) => {
 };
 export const inviteMember = async (req, res) => {
   const { projectId } = req.params;
-  const { email } = req.body;
+  const email = req.body?.email?.trim().toLowerCase();
 
   try {
     const project = await Project.findById(projectId);
@@ -123,29 +123,63 @@ export const inviteMember = async (req, res) => {
         .json({ message: "Only the project owner can invite members" });
     }
 
-    const userToInvite = await User.findOne({
-      email: email?.trim().toLowerCase(),
-    });
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const userToInvite = await User.findOne({ email });
     if (!userToInvite) {
       return res
         .status(404)
         .json({ message: "User with this email not found" });
     }
 
-    if (
-      project.createdBy.equals(userToInvite._id) ||
-      project.members.some((memberId) => memberId.equals(userToInvite._id))
-    ) {
+    const alreadyMember =
+      project.createdBy.toString() === userToInvite._id.toString() ||
+      (project.members || []).some(
+        (memberId) => memberId.toString() === userToInvite._id.toString(),
+      );
+
+    if (alreadyMember) {
       return res
         .status(400)
         .json({ message: "User is already a member of this project" });
     }
 
-    project.members.push(userToInvite._id);
+    const alreadyInvited = (project.pendingInvitations || []).some(
+      (invitation) => invitation.email === email,
+    );
+
+    if (alreadyInvited) {
+      return res.status(400).json({
+        message: "Invitation already sent to this user",
+        invitation: {
+          email,
+          status: "pending",
+        },
+      });
+    }
+
+    const newInvitation = {
+      email,
+      status: "pending",
+      invitedBy: req.user._id,
+      invitedAt: new Date(),
+    };
+
+    if (!project.pendingInvitations) {
+      project.pendingInvitations = [];
+    }
+
+    project.pendingInvitations.push(newInvitation);
     await project.save();
 
     res.json({
-      message: "Member added successfully",
+      message: "Invitation sent successfully",
+      invitation: {
+        email: newInvitation.email,
+        status: newInvitation.status,
+      },
       user: {
         _id: userToInvite._id,
         username: userToInvite.username,

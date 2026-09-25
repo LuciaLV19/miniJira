@@ -36,6 +36,16 @@ export default function CreateTaskModal() {
   const [taskCategory, setTaskCategory] = useState(taskToEdit?.category ?? "");
   const [taskDueDate, setTaskDueDate] = useState(taskToEdit?.dueDate ?? "");
   const [taskAssignee, setTaskAssignee] = useState(taskToEdit?.assignee);
+  const [selectedAssigneeId, setSelectedAssigneeId] = useState(
+    taskToEdit?.assignee?._id || taskToEdit?.assignee?.id || "",
+  );
+
+  useEffect(() => {
+    const assigneeId =
+      taskToEdit?.assignee?._id || taskToEdit?.assignee?.id || "";
+    setTaskAssignee(taskToEdit?.assignee ?? undefined);
+    setSelectedAssigneeId(assigneeId);
+  }, [taskToEdit]);
 
   useEffect(() => {
     const fetchMembers = async () => {
@@ -176,12 +186,19 @@ export default function CreateTaskModal() {
               <select
                 id="assignee"
                 className="w-full bg-black border border-neon-magenta/60 p-2 rounded text-white focus:outline-none focus:border-neon-magenta focus:shadow-[0_0_8px_rgba(236,72,153,0.25)] transition-all duration-200"
-                value={taskAssignee?.id || taskAssignee?._id || ""}
+                value={selectedAssigneeId}
                 onChange={(e) => {
+                  const selectedValue = e.target.value;
                   const selectedMember = members.find(
-                    (member) => member._id === e.target.value,
+                    (member) => member._id === selectedValue,
                   );
-                  setTaskAssignee(selectedMember);
+
+                  setSelectedAssigneeId(selectedValue);
+                  setTaskAssignee(
+                    selectedMember
+                      ? { ...selectedMember, id: selectedMember._id }
+                      : undefined,
+                  );
                 }}
               >
                 <option value="">Select Assignee</option>

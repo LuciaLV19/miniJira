@@ -28,6 +28,29 @@ const projectSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    pendingInvitations: [
+      {
+        email: {
+          type: String,
+          required: true,
+          trim: true,
+          lowercase: true,
+        },
+        status: {
+          type: String,
+          enum: ["pending", "accepted"],
+          default: "pending",
+        },
+        invitedBy: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+        invitedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
   },
   {
     timestamps: true,

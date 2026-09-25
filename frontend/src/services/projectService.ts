@@ -57,7 +57,10 @@ export const getProjectMembersApi = async (projectId: string): Promise<{_id: str
   return response.data;
 }
 
-export const inviteMemberApi = async (projectId: string, email: string): Promise<{ message: string }> => {
+export const inviteMemberApi = async (
+  projectId: string,
+  email: string,
+): Promise<{ message: string; invitation?: { email: string; status?: "pending" | "accepted" } }> => {
   const response = await api.post(`/projects/${projectId}/members`, { email });
   return response.data;
 }

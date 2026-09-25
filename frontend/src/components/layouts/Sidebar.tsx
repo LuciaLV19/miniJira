@@ -87,7 +87,7 @@ export default function Sidebar() {
             ? "5px"
             : `calc(min(85vw, ${sidebarWidth}px) + 5px)`,
         }}
-        className="md:hidden fixed top-1/2 z-50 flex h-8 w-5 text-[12px] leading-none content-center items-center justify-center rounded border border-neon-magenta/50 bg-[#0d111a] text-neon-magenta shadow-[0_0_12px_rgba(236,72,153,0.4)] cursor-pointer transition-all duration-300 ease-in-out active:scale-95"
+        className="md:hidden fixed top-[45%] z-50 flex h-8 w-5 text-[12px] leading-none content-center items-center justify-center rounded border border-neon-magenta/50 bg-[#0d111a] text-neon-magenta shadow-[0_0_12px_rgba(236,72,153,0.4)] cursor-pointer transition-all duration-300 ease-in-out active:scale-95"
         title={isCollapsed ? "Open projects" : "Close projects"}
         aria-label={isCollapsed ? "Open projects" : "Close projects"}
       >

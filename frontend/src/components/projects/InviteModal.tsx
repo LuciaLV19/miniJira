@@ -8,6 +8,7 @@ interface InviteModalProps {
   isOpen: boolean;
   onClose: () => void;
   onMemberAdded?: () => void;
+  existingEmails?: string[];
 }
 
 export const InviteModal = ({
@@ -15,6 +16,7 @@ export const InviteModal = ({
   isOpen,
   onClose,
   onMemberAdded,
+  existingEmails = [],
 }: InviteModalProps) => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -25,14 +27,33 @@ export const InviteModal = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (
+      existingEmails.some((existingEmail) => existingEmail === normalizedEmail)
+    ) {
+      setError(
+        "This user already has a pending invitation or is already part of the project",
+      );
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setSuccessMessage(null);
 
     try {
-      const response = await inviteMemberApi(projectId, email);
+      const response = await inviteMemberApi(projectId, normalizedEmail);
+      const invitationEmail = response.invitation?.email || normalizedEmail;
+      const invitationText =
+        response.invitation?.status === "pending"
+          ? "Pending invite"
+          : "Joined the project";
 
       toast.success(response.message || "Member added successfully");
+      setSuccessMessage(
+        `${invitationEmail} is now marked as ${invitationText}.`,
+      );
       setEmail("");
 
       if (onMemberAdded) {

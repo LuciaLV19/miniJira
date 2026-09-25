@@ -17,6 +17,11 @@ const normalizeProject = (project: Project): Project => ({
   id: project._id || project.id || "",
   _id: project._id,
   tasks: (project.tasks || []).map(normalizeTask),
+  members: project.members || [],
+  pendingInvitations: (project.pendingInvitations || []).map((invitation) => ({
+    ...invitation,
+    status: invitation.status || "pending",
+  })),
 });
 
 export interface CreateTaskInput {

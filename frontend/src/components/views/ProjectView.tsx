@@ -16,6 +16,7 @@ function ProjectView() {
     openTaskModal,
     taskToEdit,
     isOpenModalTask,
+    fetchProjects,
   } = useProjectStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
@@ -43,6 +44,19 @@ function ProjectView() {
   }
 
   const totalTasksCount = projectSelected.tasks?.length || 0;
+  const activeMembers = (projectSelected.members || [])
+    .filter(Boolean)
+    .map((member) => ({
+      id: member._id || member.id || "",
+      email: member.email || "",
+      username: member.username || "Unknown user",
+    }))
+    .filter((member) => member.email || member.username);
+  const pendingInvitations = projectSelected.pendingInvitations || [];
+  const invitedEmails = [
+    ...activeMembers.map((member) => member.email.toLowerCase()),
+    ...pendingInvitations.map((invitation) => invitation.email.toLowerCase()),
+  ].filter(Boolean);
   const filteredTasks =
     projectSelected.tasks?.filter((task) => {
       const query = searchQuery.toLowerCase().trim();
@@ -69,6 +83,8 @@ function ProjectView() {
             projectId={projectSelected.id}
             onClose={() => setIsInviteModalOpen(false)}
             isOpen={isInviteModalOpen}
+            existingEmails={invitedEmails}
+            onMemberAdded={() => fetchProjects()}
           />
         )}
         {/* Create/Edit Task Modal */}
@@ -141,6 +157,82 @@ function ProjectView() {
               {projectSelected.description ||
                 "No mission specifications recorded."}
             </p>
+          </div>
+
+          <div className="max-w-7xl mx-auto w-full pt-6">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="rounded-xl border border-neon-cyan/20 bg-[#0d111a] p-4 shadow-[0_0_18px_rgba(6,182,212,0.08)]">
+                <div className="mb-3 flex items-center justify-between border-b border-neon-cyan/10 pb-2">
+                  <h2 className="text-[10px] uppercase tracking-[0.25em] text-neon-cyan/70">
+                    Members
+                  </h2>
+                  <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[9px] uppercase text-emerald-300">
+                    {activeMembers.length}
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  {activeMembers.length > 0 ? (
+                    activeMembers.map((member) => (
+                      <div
+                        key={member.id || member.email}
+                        className="flex items-center justify-between rounded border border-white/5 bg-black/20 px-3 py-2 transition-colors hover:border-neon-cyan/30"
+                      >
+                        <div>
+                          <p className="text-xs text-white">
+                            {member.username}
+                          </p>
+                          <p className="text-[10px] text-white/50">
+                            {member.email}
+                          </p>
+                        </div>
+                        <span className="rounded border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[9px] uppercase text-emerald-300">
+                          Joined
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-[10px] text-white/40">No members yet.</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-amber-500/20 bg-[#0d111a] p-4 shadow-[0_0_18px_rgba(245,158,11,0.06)]">
+                <div className="mb-3 flex items-center justify-between border-b border-amber-500/10 pb-2">
+                  <h2 className="text-[10px] uppercase tracking-[0.25em] text-amber-300/80">
+                    Pending invites
+                  </h2>
+                  <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[9px] uppercase text-amber-300">
+                    {pendingInvitations.length}
+                  </span>
+                </div>
+                <div className="space-y-2">
+                  {pendingInvitations.length > 0 ? (
+                    pendingInvitations.map((invitation, index) => (
+                      <div
+                        key={`${invitation.email}-${index}`}
+                        className="flex items-center justify-between rounded border border-amber-500/20 bg-amber-500/5 px-3 py-2 transition-colors hover:border-amber-400/40"
+                      >
+                        <div>
+                          <p className="text-xs text-white">
+                            {invitation.email}
+                          </p>
+                          <p className="text-[10px] text-amber-200/80">
+                            Awaiting confirmation
+                          </p>
+                        </div>
+                        <span className="rounded border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-[9px] uppercase text-amber-300">
+                          Pending
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-[10px] text-white/40">
+                      No pending invites.
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Search empty state */}
