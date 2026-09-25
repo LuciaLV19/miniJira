@@ -9,6 +9,16 @@ interface InviteModalProps {
   onClose: () => void;
   onMemberAdded?: () => void;
   existingEmails?: string[];
+  members?: Array<{
+    _id?: string;
+    id?: string;
+    username?: string;
+    email?: string;
+  }>;
+  pendingInvitations?: Array<{
+    email: string;
+    status?: "pending" | "accepted";
+  }>;
 }
 
 export const InviteModal = ({
@@ -17,6 +27,8 @@ export const InviteModal = ({
   onClose,
   onMemberAdded,
   existingEmails = [],
+  members = [],
+  pendingInvitations = [],
 }: InviteModalProps) => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -119,6 +131,62 @@ export const InviteModal = ({
               onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-[#111622] border border-cyan-900/50 rounded p-2.5 text-sm text-cyan-100 placeholder-gray-600 focus:border-cyan-400 focus:outline-none transition-colors"
             />
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            <div className="rounded border border-emerald-500/20 bg-emerald-500/5 p-3">
+              <p className="mb-2 text-[9px] uppercase tracking-[0.2em] text-emerald-300">
+                Joined
+              </p>
+              <div className="space-y-2">
+                {members.length > 0 ? (
+                  members.map((member) => (
+                    <div
+                      key={member._id || member.id || member.email}
+                      className="rounded border border-white/5 bg-black/20 px-2 py-1.5"
+                    >
+                      <p className="text-[10px] text-white">
+                        {member.username || "User"}
+                      </p>
+                      <p className="text-[9px] text-white/50 break-all">
+                        {member.email || "Unknown email"}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-[9px] text-white/40">No members yet.</p>
+                )}
+              </div>
+            </div>
+
+            <div className="rounded border border-amber-500/20 bg-amber-500/5 p-3">
+              <p className="mb-2 text-[9px] uppercase tracking-[0.2em] text-amber-300">
+                Pending
+              </p>
+              <div className="space-y-2">
+                {pendingInvitations.length > 0 ? (
+                  pendingInvitations
+                    .filter((invitation) => invitation.status !== "accepted")
+                    .map((invitation, index) => (
+                      <div
+                        key={`${invitation.email}-${index}`}
+                        className="rounded border border-amber-500/20 bg-black/20 px-2 py-1.5"
+                      >
+                        <p className="text-[10px] text-white break-all">
+                          {invitation.email}
+                        </p>
+                        <p className="text-[9px] text-amber-200/80">
+                          Awaiting response
+                        </p>
+                      </div>
+                    ))
+                ) : (
+                  <p className="text-[9px] text-white/40">
+                    No pending invites.
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Botones de Acción */}

@@ -64,3 +64,10 @@ export const inviteMemberApi = async (
   const response = await api.post(`/projects/${projectId}/members`, { email });
   return response.data;
 }
+
+export const acceptProjectInvitationApi = async (
+  projectId: string,
+): Promise<{ message: string }> => {
+  const response = await api.post(`/projects/${projectId}/members/accept`);
+  return response.data;
+};

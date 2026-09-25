@@ -1,6 +1,7 @@
 import Project from "../models/Project.js";
 import Task from "../models/Task.js";
 import User from "../models/User.js";
+import { sendProjectInvitationEmail } from "../services/emailService.js";
 
 // @desc    Get all projects for the logged in user
 // @route   GET /api/projects
@@ -128,17 +129,13 @@ export const inviteMember = async (req, res) => {
     }
 
     const userToInvite = await User.findOne({ email });
-    if (!userToInvite) {
-      return res
-        .status(404)
-        .json({ message: "User with this email not found" });
-    }
 
     const alreadyMember =
-      project.createdBy.toString() === userToInvite._id.toString() ||
-      (project.members || []).some(
-        (memberId) => memberId.toString() === userToInvite._id.toString(),
-      );
+      userToInvite &&
+      (project.createdBy.toString() === userToInvite._id.toString() ||
+        (project.members || []).some(
+          (memberId) => memberId.toString() === userToInvite._id.toString(),
+        ));
 
     if (alreadyMember) {
       return res
@@ -160,6 +157,10 @@ export const inviteMember = async (req, res) => {
       });
     }
 
+    const inviter = await User.findById(project.createdBy).select(
+      "_id username email",
+    );
+
     const newInvitation = {
       email,
       status: "pending",
@@ -174,20 +175,106 @@ export const inviteMember = async (req, res) => {
     project.pendingInvitations.push(newInvitation);
     await project.save();
 
+    const frontendBaseUrl = process.env.CLIENT_URL || "http://localhost:5173";
+    const acceptUrl = `${frontendBaseUrl}/accept-invitation?projectId=${project._id}&email=${encodeURIComponent(email)}`;
+
+    try {
+      await sendProjectInvitationEmail({
+        email,
+        projectName: project.name,
+        inviterName: inviter?.username || "A teammate",
+        acceptUrl,
+      });
+    } catch (emailError) {
+      console.warn(
+        "Project invitation email could not be sent:",
+        emailError.message,
+      );
+    }
+
     res.json({
-      message: "Invitation sent successfully",
+      message:
+        "Invitation sent successfully. The user must accept it to join the project.",
       invitation: {
         email: newInvitation.email,
         status: newInvitation.status,
       },
-      user: {
-        _id: userToInvite._id,
-        username: userToInvite.username,
-        email: userToInvite.email,
-      },
+      user: userToInvite
+        ? {
+            _id: userToInvite._id,
+            username: userToInvite.username,
+            email: userToInvite.email,
+          }
+        : null,
     });
   } catch (error) {
     res.status(500).json({ message: error.message || "Error inviting member" });
+  }
+};
+
+export const acceptProjectInvitation = async (req, res) => {
+  const { projectId } = req.params;
+  const email = req.user?.email?.trim().toLowerCase();
+
+  try {
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    if (!email) {
+      return res.status(400).json({ message: "Your email is required" });
+    }
+
+    const invitationIndex = (project.pendingInvitations || []).findIndex(
+      (invitation) =>
+        invitation.email === email && invitation.status === "pending",
+    );
+
+    if (invitationIndex === -1) {
+      return res.status(404).json({
+        message: "No pending invitation was found for this email",
+      });
+    }
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const alreadyMember = (project.members || []).some(
+      (memberId) => memberId.toString() === user._id.toString(),
+    );
+
+    if (alreadyMember) {
+      project.pendingInvitations[invitationIndex].status = "accepted";
+      project.pendingInvitations[invitationIndex].acceptedAt = new Date();
+      await project.save();
+
+      return res.json({
+        message: "You are already a member of this project.",
+        member: user,
+      });
+    }
+
+    project.members.push(user._id);
+    project.pendingInvitations[invitationIndex].status = "accepted";
+    project.pendingInvitations[invitationIndex].acceptedAt = new Date();
+    await project.save();
+
+    res.json({
+      message:
+        "Invitation accepted successfully. You are now part of the project.",
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: error.message || "Error accepting invitation" });
   }
 };
 

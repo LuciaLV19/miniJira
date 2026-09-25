@@ -8,6 +8,7 @@ import { Toaster } from "sonner";
 import LoginPage from "./components/views/LoginPage";
 import UserProfile from "./components/views/UserProfile";
 import ResetPasswordPage from "./components/views/ResetPasswordPage";
+import AcceptInvitationPage from "./components/views/AcceptInvitationPage.tsx";
 
 function App() {
   return (
@@ -21,6 +22,11 @@ function App() {
           </Route>
         </Route>
         <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/register"
+          element={<LoginPage initialMode="register" />}
+        />
+        <Route path="/accept-invitation" element={<AcceptInvitationPage />} />
         <Route
           path="/forgot-password"
           element={<LoginPage initialMode="forgot" />}

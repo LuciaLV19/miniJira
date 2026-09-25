@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Eye, EyeOff, Lock, Mail, User, Loader2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/useAuthStore";
 import { isAxiosError } from "axios";
 
@@ -15,6 +15,7 @@ export default function RegisterForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const { register } = useAuthStore();
 
@@ -57,7 +58,8 @@ export default function RegisterForm() {
     setLoading(true);
     try {
       await register({ username, email, password, confirmPassword });
-      navigate("/"); // Redirect to dashboard after successful registration
+      const returnTo = (location.state as { from?: string } | null)?.from;
+      navigate(returnTo || "/");
     } catch (error: unknown) {
       if (isAxiosError(error)) {
         setError(error.response?.data?.message || "Registration failed");

@@ -108,6 +108,13 @@ describe("projectController", () => {
         username: "Nuevo Usuario",
         email: "nuevo@correo.com",
       });
+      vi.mocked(User.findById).mockReturnValue({
+        select: vi.fn().mockResolvedValue({
+          _id: "user-123",
+          username: "Owner",
+          email: "owner@correo.com",
+        }),
+      });
 
       await projectController.inviteMember(req, res);
 

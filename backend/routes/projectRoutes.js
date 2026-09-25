@@ -14,6 +14,7 @@ import {
   updateProject,
   getProjectMembers,
   inviteMember,
+  acceptProjectInvitation,
 } from "../controllers/projectController.js";
 
 const router = express.Router();
@@ -32,6 +33,8 @@ router
   .route("/:projectId/members")
   .get(protect, getProjectMembers)
   .post(protect, inviteMember);
+
+router.post("/:projectId/members/accept", protect, acceptProjectInvitation);
 
 router.use("/:projectId/tasks", taskRoutes);
 export default router;

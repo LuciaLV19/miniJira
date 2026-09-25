@@ -2,7 +2,7 @@ import { useState } from "react";
 import { isAxiosError } from "axios";
 import { useAuthStore } from "../../store/useAuthStore";
 import { Eye, EyeOff, Lock, Mail, Loader2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -11,6 +11,7 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const { login } = useAuthStore();
 
@@ -24,7 +25,8 @@ export default function LoginForm() {
     setLoading(true);
     try {
       await login({ email, password });
-      navigate("/");
+      const returnTo = (location.state as { from?: string } | null)?.from;
+      navigate(returnTo || "/");
     } catch (err: unknown) {
       if (isAxiosError(err)) {
         setError(err.response?.data?.message || "Invalid email or password");
