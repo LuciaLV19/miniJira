@@ -1,12 +1,22 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ShieldAlert } from "lucide-react";
 import LoginForm from "../auth/LoginForm";
 import RegisterForm from "../auth/RegisterForm";
 import ForgotPasswordForm from "../auth/ForgotPasswordForm";
 
-export default function LoginPage() {
-  const [mode, setMode] = useState<"login" | "register" | "forgot">("login");
+type LoginPageProps = {
+  initialMode?: "login" | "register" | "forgot";
+};
+
+export default function LoginPage({ initialMode = "login" }: LoginPageProps) {
+  const [mode, setMode] = useState<"login" | "register" | "forgot">(
+    initialMode,
+  );
   const isLogin = mode === "login";
+
+  useEffect(() => {
+    setMode(initialMode);
+  }, [initialMode]);
 
   return (
     <div className="min-h-screen w-full bg-[#0a0d14] flex items-center justify-center p-4 relative overflow-hidden font-sans">

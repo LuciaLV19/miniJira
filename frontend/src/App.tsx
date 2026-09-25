@@ -21,6 +21,10 @@ function App() {
           </Route>
         </Route>
         <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/forgot-password"
+          element={<LoginPage initialMode="forgot" />}
+        />
         <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
         <Route
           path="*"
