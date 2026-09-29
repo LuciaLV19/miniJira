@@ -96,7 +96,7 @@ describe("LoginForm Component", () => {
 
     fireEvent.click(
       screen.getByRole("button", {
-        name: /probar como invitado \/ demo user/i,
+        name: /demo user \/ probar como invitado/i,
       }),
     );
 
