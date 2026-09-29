@@ -134,12 +134,20 @@ export const inviteMember = async (req, res) => {
 
     const userToInvite = await User.findOne({ email });
 
+    if (
+      userToInvite &&
+      project.createdBy.toString() === userToInvite._id.toString()
+    ) {
+      return res.status(400).json({
+        message: "The project owner is already part of the project",
+      });
+    }
+
     const alreadyMember =
       userToInvite &&
-      (project.createdBy.toString() === userToInvite._id.toString() ||
-        (project.members || []).some(
-          (memberId) => memberId.toString() === userToInvite._id.toString(),
-        ));
+      (project.members || []).some(
+        (memberId) => memberId.toString() === userToInvite._id.toString(),
+      );
 
     if (alreadyMember) {
       return res

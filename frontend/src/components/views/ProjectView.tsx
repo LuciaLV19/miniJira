@@ -59,10 +59,7 @@ function ProjectView() {
   }
 
   const totalTasksCount = projectSelected.tasks?.length || 0;
-  const activeMembers = [
-    projectSelected.createdBy,
-    ...(projectSelected.members || []),
-  ]
+  const activeMembers = (projectSelected.members || [])
     .filter(isProjectMember)
     .filter(
       (member, index, members) =>

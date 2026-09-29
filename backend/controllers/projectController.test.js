@@ -148,6 +148,34 @@ describe("projectController", () => {
         }),
       );
     });
+
+    it("no debería permitir invitar al creador del proyecto usando su propio email", async () => {
+      req.params = { projectId: "proj-123" };
+      req.body = { email: "owner@correo.com" };
+
+      const project = {
+        _id: "proj-123",
+        createdBy: { toString: () => "user-123" },
+        members: [],
+        pendingInvitations: [],
+        save: vi.fn(),
+      };
+
+      vi.mocked(Project.findById).mockResolvedValue(project);
+      vi.mocked(User.findOne).mockResolvedValue({
+        _id: "user-123",
+        username: "Owner",
+        email: "owner@correo.com",
+      });
+
+      await projectController.inviteMember(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "The project owner is already part of the project",
+      });
+      expect(project.save).not.toHaveBeenCalled();
+    });
   });
 
   describe("acceptProjectInvitation", () => {
