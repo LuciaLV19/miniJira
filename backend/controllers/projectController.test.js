@@ -149,4 +149,41 @@ describe("projectController", () => {
       );
     });
   });
+
+  describe("acceptProjectInvitation", () => {
+    it("adds the invited user as a member after acceptance", async () => {
+      req.params = { projectId: "proj-123" };
+      req.user = {
+        _id: "user-456",
+        id: "user-456",
+        email: "nuevo@correo.com",
+      };
+
+      const user = {
+        _id: "user-456",
+        username: "Nuevo Usuario",
+        email: "nuevo@correo.com",
+      };
+      const project = {
+        _id: "proj-123",
+        members: [],
+        pendingInvitations: [{ email: "nuevo@correo.com", status: "pending" }],
+        save: vi.fn().mockResolvedValue(true),
+      };
+
+      vi.mocked(Project.findById).mockResolvedValue(project);
+      vi.mocked(User.findById).mockResolvedValue(user);
+
+      await projectController.acceptProjectInvitation(req, res);
+
+      expect(project.members).toContain("user-456");
+      expect(project.pendingInvitations[0].status).toBe("accepted");
+      expect(project.save).toHaveBeenCalledOnce();
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: expect.stringContaining("Invitation accepted successfully"),
+        }),
+      );
+    });
+  });
 });

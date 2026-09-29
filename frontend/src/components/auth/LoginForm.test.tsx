@@ -84,6 +84,36 @@ describe("LoginForm Component", () => {
     localStorageSpy.mockRestore();
   });
 
+  it("debería iniciar sesión con la cuenta demo en un clic", async () => {
+    vi.mocked(api.post).mockResolvedValue({
+      data: {
+        token: "demo-token",
+        user: { id: "demo-user", email: "demo@minijira.com" },
+      },
+    });
+
+    renderComponent();
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: /probar como invitado \/ demo user/i,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(api.post).toHaveBeenCalledWith("/auth/login", {
+        email: "demo@minijira.com",
+        password: "Demo1234!",
+      });
+    });
+    expect((screen.getByLabelText(/email/i) as HTMLInputElement).value).toBe(
+      "demo@minijira.com",
+    );
+    expect((screen.getByLabelText(/password/i) as HTMLInputElement).value).toBe(
+      "Demo1234!",
+    );
+  });
+
   it("no debería enviar el formulario si está vacío", () => {
     renderComponent();
 

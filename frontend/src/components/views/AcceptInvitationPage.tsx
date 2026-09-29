@@ -18,7 +18,6 @@ import {
 } from "react-router-dom";
 import { acceptProjectInvitationApi } from "../../services/projectService";
 import { useAuthStore } from "../../store/useAuthStore";
-import { useProjectStore } from "../../store/useProjectStore";
 
 export default function AcceptInvitationPage() {
   const [searchParams] = useSearchParams();
@@ -29,7 +28,6 @@ export default function AcceptInvitationPage() {
   const user = useAuthStore((state) => state.user);
   const token = useAuthStore((state) => state.token);
   const logout = useAuthStore((state) => state.logout);
-  const fetchProjects = useProjectStore((state) => state.fetchProjects);
   const [submitting, setSubmitting] = useState(false);
   const [accepted, setAccepted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -44,7 +42,6 @@ export default function AcceptInvitationPage() {
     try {
       await acceptProjectInvitationApi(projectId);
       setAccepted(true);
-      void fetchProjects();
     } catch (requestError: unknown) {
       setError(
         isAxiosError(requestError)

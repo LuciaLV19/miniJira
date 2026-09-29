@@ -135,8 +135,8 @@ export default function ProjectCards({ project }: { project: Project }) {
           </span>
         </div>
 
-        {/* Action Controls: Hover-revealed edit and delete options */}
-        <div className="flex justify-end gap-3 mt-2 pt-1 border-t border-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        {/* Action Controls: visible on mobile and hover-revealed on desktop */}
+        <div className="flex justify-end gap-3 mt-2 pt-1 border-t border-white/5 opacity-100 transition-opacity duration-200 md:opacity-0 md:group-hover:opacity-100">
           <button
             onClick={(e) => {
               e.stopPropagation();

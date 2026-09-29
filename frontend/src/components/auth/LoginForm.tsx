@@ -4,6 +4,11 @@ import { useAuthStore } from "../../store/useAuthStore";
 import { Eye, EyeOff, Lock, Mail, Loader2 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+const DEMO_CREDENTIALS = {
+  email: "demo@minijira.com",
+  password: "Demo1234!",
+};
+
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
@@ -15,16 +20,18 @@ export default function LoginForm() {
 
   const { login } = useAuthStore();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!email.trim() || !password.trim()) {
+  const handleLogin = async (credentials: {
+    email: string;
+    password: string;
+  }) => {
+    if (!credentials.email.trim() || !credentials.password.trim()) {
       setError("Please fill in all fields");
       setLoading(false);
       return;
     }
     setLoading(true);
     try {
-      await login({ email, password });
+      await login(credentials);
       const returnTo = (location.state as { from?: string } | null)?.from;
       navigate(returnTo || "/");
     } catch (err: unknown) {
@@ -36,6 +43,17 @@ export default function LoginForm() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    void handleLogin({ email, password });
+  };
+
+  const handleDemoLogin = () => {
+    setEmail(DEMO_CREDENTIALS.email);
+    setPassword(DEMO_CREDENTIALS.password);
+    void handleLogin(DEMO_CREDENTIALS);
   };
 
   return (
@@ -109,6 +127,14 @@ export default function LoginForm() {
         className="flex items-center justify-center mt-4 w-full py-2.5 px-4 h-9 bg-cyan-500 hover:bg-cyan-400 text-[#0a0d14] font-mono font-bold text-sm rounded-lg uppercase tracking-wider shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:shadow-[0_0_30px_rgba(6,182,212,0.7)] active:scale-[0.98] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Sign in"}
+      </button>
+      <button
+        type="button"
+        onClick={handleDemoLogin}
+        disabled={loading}
+        className="flex items-center justify-center w-full py-2.5 px-4 h-9 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10 font-mono font-bold text-xs rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Demo User / Probar como invitado
       </button>
     </form>
   );

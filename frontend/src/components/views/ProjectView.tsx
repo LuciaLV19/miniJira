@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { useProjectStore } from "../../store/useProjectStore";
 import CreateTaskModal from "../tasks/CreateTaskModal";
 import TaskBoard from "../tasks/TaskBoard";
@@ -15,6 +16,7 @@ const isProjectMember = (
  * task management board, and initiating task creation/editing.
  */
 function ProjectView() {
+  const { projectId: routeProjectId } = useParams();
   const {
     activeProjectId,
     projects,
@@ -26,7 +28,15 @@ function ProjectView() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 
-  const projectSelected = projects.find((p) => p.id === activeProjectId);
+  const projectSelected = projects.find(
+    (project) => project.id === (routeProjectId || activeProjectId),
+  );
+
+  useEffect(() => {
+    if (routeProjectId) {
+      void fetchProjects();
+    }
+  }, [routeProjectId, fetchProjects]);
 
   // Fallback empty state when no active project is selected
   if (!projectSelected) {
@@ -115,7 +125,7 @@ function ProjectView() {
         <main className="flex-1 h-full overflow-y-auto bg-black border-l border-neon-cyan/10 p-4 md:p-6 font-mono text-white min-w-0 w-full">
           {/* Project Header */}
           <div className="max-w-7xl mx-auto space-y-6 border-b border-neon-cyan/20 pb-6 min-w-0">
-            <header className="grid grid-cols-1 gap-4 items-center p-4 bg-[#0d111a] border border-cyan-500/20 rounded-xl min-w-0 md:grid-cols-[minmax(170px,1fr)_minmax(130px,280px)_auto]">
+            <header className="grid grid-cols-1 gap-4 items-center p-4 bg-[#0d111a] border border-cyan-500/20 rounded-xl min-w-0 lg:grid-cols-[minmax(170px,1fr)_minmax(130px,280px)_auto]">
               {/* Column 1 (Phone}): Project Title and Task Counter */}
               <div className="flex items-start justify-between min-w-0 gap-2">
                 <div className="flex flex-col items-start min-w-0 flex-1">
@@ -140,10 +150,10 @@ function ProjectView() {
               {/* Project actions */}
               <div
                 aria-label="Project actions"
-                className="flex w-full min-w-0 flex-wrap items-center justify-end gap-2 rounded-lg border border-white/10 bg-black/30 p-1.5 md:w-auto md:flex-nowrap"
+                className="flex w-full min-w-0 flex-wrap items-center justify-start gap-2 rounded-lg border border-white/10 bg-black/30 p-1.5 sm:justify-end lg:w-auto"
               >
-                <div className="flex shrink-0 items-center gap-2 px-1.5">
-                  <span className="text-[9px] font-bold uppercase tracking-wider text-white/50">
+                <div className="flex min-w-0 items-center gap-2 px-1.5">
+                  <span className="min-w-0 wrap-break-word text-[9px] font-bold uppercase tracking-wider text-white/50">
                     Task control
                   </span>
                   <span className="shrink-0 whitespace-nowrap text-[10px] font-bold text-neon-cyan">

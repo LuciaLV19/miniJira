@@ -1,11 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter, MemoryRouter, Route, Routes } from "react-router-dom";
 import LoginForm from "../components/auth/LoginForm";
 import RegisterForm from "../components/auth/RegisterForm";
 import ProjectList from "../components/projects/ProjectList";
+import { InviteModal } from "../components/projects/InviteModal";
 import CreateTaskModal from "../components/tasks/CreateTaskModal";
+import AcceptInvitationPage from "../components/views/AcceptInvitationPage";
+import ProjectView from "../components/views/ProjectView";
 import { useAuthStore } from "../store/useAuthStore";
 import { useProjectStore } from "../store/useProjectStore";
 import * as authService from "../services/authService";
@@ -28,6 +31,8 @@ vi.mock("../services/projectService", () => ({
   deleteTaskApi: vi.fn(),
   updateTaskApi: vi.fn(),
   getProjectMembersApi: vi.fn(), // 🟢 Mock añadido de miembros
+  inviteMemberApi: vi.fn(),
+  acceptProjectInvitationApi: vi.fn(),
 }));
 
 const renderInRouter = (ui: React.ReactNode) =>
@@ -40,6 +45,7 @@ describe("critical user flows", () => {
 
     // 🟢 Resolución por defecto para getProjectMembersApi (devuelve array vacío por defecto)
     vi.mocked(projectService.getProjectMembersApi).mockResolvedValue([]);
+    vi.mocked(projectService.fetchProjectsApi).mockResolvedValue([]);
 
     useAuthStore.setState({ user: null, token: null });
     useProjectStore.setState({
@@ -126,6 +132,108 @@ describe("critical user flows", () => {
 
     expect(screen.getByText("Mobile app"));
     expect(screen.queryByText("Website redesign"));
+  });
+
+  it("sends an invitation and refreshes the project state", async () => {
+    const user = userEvent.setup();
+    const onMemberAdded = vi.fn();
+    vi.mocked(projectService.inviteMemberApi).mockResolvedValue({
+      message: "Invitation sent successfully",
+      invitation: { email: "teammate@example.com", status: "pending" },
+    });
+
+    render(
+      <InviteModal
+        projectId="p-1"
+        isOpen
+        onClose={vi.fn()}
+        onMemberAdded={onMemberAdded}
+      />,
+    );
+
+    await user.type(
+      screen.getByPlaceholderText("colleague@example.com"),
+      "Teammate@Example.com",
+    );
+    await user.click(screen.getByRole("button", { name: /send_invite/i }));
+
+    await waitFor(() => {
+      expect(projectService.inviteMemberApi).toHaveBeenCalledWith(
+        "p-1",
+        "teammate@example.com",
+      );
+    });
+    expect(
+      screen.getByText(
+        /teammate@example\.com is now marked as Pending invite\./i,
+      ),
+    );
+    expect(onMemberAdded).toHaveBeenCalledOnce();
+  });
+
+  it("accepts a project invitation and opens the project", async () => {
+    const user = userEvent.setup();
+    vi.mocked(projectService.acceptProjectInvitationApi).mockResolvedValue({
+      message: "Invitation accepted successfully",
+    });
+    vi.mocked(projectService.fetchProjectsApi).mockResolvedValue([
+      {
+        _id: "p-1",
+        name: "Invitation project",
+        description: "Shared project details",
+        createdAt: new Date().toISOString(),
+        isFavorite: false,
+        tasks: [],
+        createdBy: {
+          _id: "owner-1",
+          username: "Owner",
+          email: "owner@example.com",
+        },
+        members: [
+          {
+            _id: "user-1",
+            username: "Teammate",
+            email: "teammate@example.com",
+          },
+        ],
+      },
+    ]);
+    useAuthStore.setState({
+      user: {
+        _id: "user-1",
+        username: "Teammate",
+        email: "teammate@example.com",
+        token: "invite-token",
+      },
+      token: "invite-token",
+    });
+
+    render(
+      <MemoryRouter
+        initialEntries={[
+          "/accept-invitation?projectId=p-1&email=teammate%40example.com",
+        ]}
+      >
+        <Routes>
+          <Route path="/accept-invitation" element={<AcceptInvitationPage />} />
+          <Route path="/project/:projectId" element={<ProjectView />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    await user.click(
+      screen.getByRole("button", { name: /aceptar invitación/i }),
+    );
+    await waitFor(() => {
+      expect(projectService.acceptProjectInvitationApi).toHaveBeenCalledWith(
+        "p-1",
+      );
+    });
+    await user.click(
+      await screen.findByRole("button", { name: /abrir proyecto/i }),
+    );
+
+    expect(await screen.findByRole("heading", { name: /invitation project/i }));
   });
 
   it("validates and creates a task from the task modal", async () => {
