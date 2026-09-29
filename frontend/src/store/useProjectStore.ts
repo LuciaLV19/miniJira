@@ -143,7 +143,7 @@ export const useProjectStore = create<ProjectState>()(
             activeProjectId:
               state.activeProjectId === id ? undefined : state.activeProjectId,
           }));
-          toast.error("[ SYSTEM_LOG: PROJECT_DELETED ]", {
+          toast.success("[ SYSTEM_LOG: PROJECT_DELETED ]", {
             description: "The project has been deleted.",
           });
         } catch (error: unknown) {
