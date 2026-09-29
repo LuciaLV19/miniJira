@@ -1,11 +1,15 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-export const sendPasswordResetEmail = async ({ email, username, resetUrl }) => {
+const getResend = () => {
   if (!process.env.RESEND_API_KEY) {
     throw new Error("Resend API key is missing");
   }
+
+  return new Resend(process.env.RESEND_API_KEY);
+};
+
+export const sendPasswordResetEmail = async ({ email, username, resetUrl }) => {
+  const resend = getResend();
 
   const { error } = await resend.emails.send({
     from: process.env.MAIL_FROM || "MiniJira <onboarding@resend.dev>",
@@ -49,9 +53,7 @@ export const sendProjectInvitationEmail = async ({
   inviterName,
   acceptUrl,
 }) => {
-  if (!process.env.RESEND_API_KEY) {
-    throw new Error("Resend API key is missing");
-  }
+  const resend = getResend();
 
   const { error } = await resend.emails.send({
     from: process.env.MAIL_FROM || "MiniJira <onboarding@resend.dev>",
