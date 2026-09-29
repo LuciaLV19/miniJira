@@ -226,9 +226,15 @@ export const inviteMember = async (req, res) => {
 
 export const acceptProjectInvitation = async (req, res) => {
   const { projectId } = req.params;
-  const email = req.user?.email?.trim().toLowerCase();
 
   try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const email = user.email?.trim().toLowerCase();
+
     const project = await Project.findById(projectId);
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
@@ -247,11 +253,6 @@ export const acceptProjectInvitation = async (req, res) => {
       return res.status(404).json({
         message: "No pending invitation was found for this email",
       });
-    }
-
-    const user = await User.findById(req.user._id);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
     }
 
     const alreadyMember = (project.members || []).some(

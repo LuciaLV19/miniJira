@@ -46,8 +46,8 @@ export default function AcceptInvitationPage() {
       setError(
         isAxiosError(requestError)
           ? requestError.response?.data?.message ||
-              "No se pudo aceptar la invitación."
-          : "Ocurrió un error inesperado. Inténtalo de nuevo.",
+              "The invitation could not be accepted."
+          : "An unexpected error occurred. Please try again.",
       );
     } finally {
       setSubmitting(false);
@@ -81,17 +81,17 @@ export default function AcceptInvitationPage() {
       <div className="text-center">
         <CircleAlert className="mx-auto mb-4 h-10 w-10 text-amber-400" />
         <h1 className="font-mono text-xl font-bold uppercase text-white">
-          Enlace no válido
+          Invalid invitation link
         </h1>
         <p className="mt-3 text-sm leading-6 text-slate-400">
-          El enlace no contiene los datos necesarios para identificar la
-          invitación.
+          The link does not contain the information needed to identify the
+          invitation.
         </p>
         <Link
           to="/"
           className="mt-7 inline-flex min-h-11 items-center justify-center gap-2 bg-cyan-400 px-5 font-mono text-xs font-bold uppercase text-slate-950 transition hover:bg-cyan-300"
         >
-          Ir a MiniJira <ArrowRight className="h-4 w-4" />
+          Go to MiniJira <ArrowRight className="h-4 w-4" />
         </Link>
       </div>,
     );
@@ -107,10 +107,10 @@ export default function AcceptInvitationPage() {
           Invitation received
         </p>
         <h1 className="mt-2 font-mono text-2xl font-bold uppercase text-white">
-          Te han invitado a un proyecto
+          You have been invited to a project
         </h1>
         <p className="mt-4 text-sm leading-6 text-slate-400">
-          Inicia sesión con esta cuenta para revisar y aceptar la invitación.
+          Sign in with this account to review and accept the invitation.
         </p>
         <div className="mt-6 flex items-center gap-3 border-y border-white/10 py-4 text-sm text-slate-200">
           <Mail className="h-4 w-4 shrink-0 text-cyan-300" />
@@ -122,14 +122,14 @@ export default function AcceptInvitationPage() {
             state={{ from: returnTo }}
             className="inline-flex min-h-11 items-center justify-center gap-2 bg-cyan-400 px-4 font-mono text-xs font-bold uppercase text-slate-950 transition hover:bg-cyan-300"
           >
-            Iniciar sesión <ArrowRight className="h-4 w-4" />
+            Sign in <ArrowRight className="h-4 w-4" />
           </Link>
           <Link
             to="/register"
             state={{ from: returnTo }}
             className="inline-flex min-h-11 items-center justify-center border border-white/15 px-4 font-mono text-xs font-bold uppercase text-slate-200 transition hover:border-cyan-300/60 hover:text-cyan-200"
           >
-            Crear cuenta
+            Create account
           </Link>
         </div>
       </div>,
@@ -143,14 +143,14 @@ export default function AcceptInvitationPage() {
           <CircleAlert className="h-6 w-6" />
         </div>
         <h1 className="font-mono text-2xl font-bold uppercase text-white">
-          Cambia de cuenta
+          Switch account
         </h1>
         <p className="mt-4 text-sm leading-6 text-slate-400">
-          Esta invitación se envió a{" "}
-          <span className="text-slate-200">{invitedEmail}</span>, pero has
-          iniciado sesión como{" "}
+          This invitation was sent to{" "}
+          <span className="text-slate-200">{invitedEmail}</span>, but you are
+          signed in as{" "}
           <span className="text-slate-200">
-            {accountEmail || "otra cuenta"}
+            {accountEmail || "another account"}
           </span>
           .
         </p>
@@ -159,7 +159,7 @@ export default function AcceptInvitationPage() {
           onClick={handleSwitchAccount}
           className="mt-7 inline-flex min-h-11 w-full items-center justify-center gap-2 bg-cyan-400 px-5 font-mono text-xs font-bold uppercase text-slate-950 transition hover:bg-cyan-300"
         >
-          <LogOut className="h-4 w-4" /> Cerrar sesión y continuar
+          <LogOut className="h-4 w-4" /> Sign out and continue
         </button>
       </div>,
     );
@@ -175,18 +175,18 @@ export default function AcceptInvitationPage() {
           Access granted
         </p>
         <h1 className="mt-2 font-mono text-2xl font-bold uppercase text-white">
-          Ya formas parte del proyecto
+          You are now part of the project
         </h1>
         <p className="mt-3 text-sm leading-6 text-slate-400">
-          La invitación se aceptó correctamente. Ya puedes colaborar con tu
-          equipo.
+          The invitation was accepted successfully. You can now collaborate with
+          your team.
         </p>
         <button
           type="button"
           onClick={() => navigate(`/project/${projectId}`)}
           className="mt-7 inline-flex min-h-11 items-center justify-center gap-2 bg-emerald-400 px-5 font-mono text-xs font-bold uppercase text-slate-950 transition hover:bg-emerald-300"
         >
-          Abrir proyecto <ArrowRight className="h-4 w-4" />
+          Open project <ArrowRight className="h-4 w-4" />
         </button>
       </div>,
     );
@@ -201,15 +201,15 @@ export default function AcceptInvitationPage() {
         Pending invitation
       </p>
       <h1 className="mt-2 font-mono text-2xl font-bold uppercase text-white">
-        Únete al equipo
+        Join the team
       </h1>
       <p className="mt-4 text-sm leading-6 text-slate-400">
-        Confirma que quieres unirte al proyecto. Al aceptar, tendrás acceso a
-        sus tareas y miembros.
+        Confirm that you want to join the project. Once accepted, you will have
+        access to its tasks and members.
       </p>
       <div className="mt-6 flex items-center gap-3 border-y border-white/10 py-4 text-sm text-slate-200">
         <ShieldCheck className="h-4 w-4 shrink-0 text-cyan-300" />
-        <span className="break-all">Invitación para {invitedEmail}</span>
+        <span className="break-all">Invitation for {invitedEmail}</span>
       </div>
       {error && (
         <p
@@ -227,12 +227,12 @@ export default function AcceptInvitationPage() {
       >
         {submitting ? (
           <>
-            <LoaderCircle className="h-4 w-4 animate-spin" /> Aceptando
-            invitación
+            <LoaderCircle className="h-4 w-4 animate-spin" /> Accepting
+            invitation
           </>
         ) : (
           <>
-            Aceptar invitación <ArrowRight className="h-4 w-4" />
+            Accept invitation <ArrowRight className="h-4 w-4" />
           </>
         )}
       </button>
