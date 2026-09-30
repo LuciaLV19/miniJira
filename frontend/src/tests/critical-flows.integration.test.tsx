@@ -222,7 +222,7 @@ describe("critical user flows", () => {
     );
 
     await user.click(
-      screen.getByRole("button", { name: /aceptar invitación/i }),
+      screen.getByRole("button", { name: /accept invitation/i }),
     );
     await waitFor(() => {
       expect(projectService.acceptProjectInvitationApi).toHaveBeenCalledWith(
