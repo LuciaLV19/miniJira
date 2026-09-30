@@ -230,7 +230,7 @@ describe("critical user flows", () => {
       );
     });
     await user.click(
-      await screen.findByRole("button", { name: /abrir proyecto/i }),
+      await screen.findByRole("button", { name: /open project/i }),
     );
 
     expect(await screen.findByRole("heading", { name: /invitation project/i }));
