@@ -166,7 +166,7 @@ export const InviteModal = ({
               <p className="mb-2 text-[9px] uppercase tracking-[0.2em] text-emerald-300">
                 Joined
               </p>
-              <div className="space-y-2">
+              <div className="max-h-36 space-y-2 overflow-y-auto pr-1">
                 {members.length > 0 ? (
                   members.map((member) => (
                     <div
@@ -198,7 +198,7 @@ export const InviteModal = ({
               <p className="mb-2 text-[9px] uppercase tracking-[0.2em] text-amber-300">
                 Pending
               </p>
-              <div className="space-y-2">
+              <div className="max-h-36 space-y-2 overflow-y-auto pr-1">
                 {pendingInvitations.length > 0 ? (
                   pendingInvitations
                     .filter((invitation) => invitation.status !== "accepted")
