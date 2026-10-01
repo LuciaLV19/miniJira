@@ -7,7 +7,13 @@ import { useSettingsStore } from "../../store/useSettingsStore"; // Ajusta la ru
  * TaskCard component renders an individual task item within a Kanban column.
  * Displays key details including priority, assignee, category, due dates, and comment counts.
  */
-export default function TaskCard({ task }: { task: Task }) {
+export default function TaskCard({
+  task,
+  readOnly = false,
+}: {
+  task: Task;
+  readOnly?: boolean;
+}) {
   // Zustand store state selectors
   const deleteTask = useProjectStore((state) => state.deleteTask);
   const editTask = useProjectStore((state) => state.editTask);
@@ -85,7 +91,7 @@ export default function TaskCard({ task }: { task: Task }) {
 
   return (
     <div
-      draggable={true}
+      draggable={!readOnly}
       onDragStart={(e) => handleDragStart(e, taskId || "")}
       onDragEnd={() => setIsDragging(false)}
       className={`group bg-black p-3 rounded border border-white/10 hover:border-neon-cyan/30 transition-all duration-200 cursor-grab active:cursor-grabbing flex flex-col justify-between min-h-35 font-mono shadow-[0_4px_12px_rgba(0,0,0,0.6)] ${
@@ -101,39 +107,41 @@ export default function TaskCard({ task }: { task: Task }) {
           >
             // {task.category || "General"}
           </span>
-          <div ref={menuRef}>
-            <button
-              type="button"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="group-hover:text-neon-cyan transition-colors cursor-pointer font-bold text-sm border border-white/10 px-1 rounded leading-none"
-            >
-              <span className="-translate-y-0.75 inline-block font-bold">
-                …
-              </span>
-            </button>
-            {isMenuOpen && (
-              <div className="absolute top-full right-0 flex flex-col gap-2 z-10 bg-black/95 border border-white/10 rounded p-1 items-start">
-                <button
-                  onClick={() => {
-                    handleEditTask();
-                  }}
-                  className="hover:text-neon-cyan transition-colors cursor-pointer font-bold text-[10px] rounded leading-none"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => {
-                    if (activeProjectId && taskId) {
-                      deleteTask(activeProjectId, taskId);
-                    }
-                  }}
-                  className="hover:text-neon-cyan transition-colors cursor-pointer font-bold text-[10px] rounded leading-none"
-                >
-                  Delete
-                </button>
-              </div>
-            )}
-          </div>
+          {!readOnly && (
+            <div ref={menuRef}>
+              <button
+                type="button"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="group-hover:text-neon-cyan transition-colors cursor-pointer font-bold text-sm border border-white/10 px-1 rounded leading-none"
+              >
+                <span className="-translate-y-0.75 inline-block font-bold">
+                  …
+                </span>
+              </button>
+              {isMenuOpen && (
+                <div className="absolute top-full right-0 flex flex-col gap-2 z-10 bg-black/95 border border-white/10 rounded p-1 items-start">
+                  <button
+                    onClick={() => {
+                      handleEditTask();
+                    }}
+                    className="hover:text-neon-cyan transition-colors cursor-pointer font-bold text-[10px] rounded leading-none"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (activeProjectId && taskId) {
+                        deleteTask(activeProjectId, taskId);
+                      }
+                    }}
+                    className="hover:text-neon-cyan transition-colors cursor-pointer font-bold text-[10px] rounded leading-none"
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="flex justify-between gap-1 min-h-10">

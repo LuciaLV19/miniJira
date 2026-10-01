@@ -88,10 +88,14 @@ export const updateTask = async (req, res, next) => {
       return res.json(updatedTask);
     }
 
-    if (task.createdBy.toString() !== req.user._id.toString()) {
+    if (
+      req.project &&
+      task.project &&
+      task.project.toString() !== req.project._id.toString()
+    ) {
       return res
         .status(403)
-        .json({ message: "Not authorized to update this task" });
+        .json({ message: "Task does not belong to this project" });
     }
 
     const updateData = { ...req.body };
@@ -139,10 +143,14 @@ export const deleteTask = async (req, res, next) => {
       return res.json({ message: "Task removed successfully" });
     }
 
-    if (task.createdBy.toString() !== req.user._id.toString()) {
+    if (
+      req.project &&
+      task.project &&
+      task.project.toString() !== req.project._id.toString()
+    ) {
       return res
         .status(403)
-        .json({ message: "Not authorized to delete this task" });
+        .json({ message: "Task does not belong to this project" });
     }
 
     await Project.findByIdAndUpdate(task.project, {

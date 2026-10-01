@@ -7,10 +7,12 @@ export default function Column({
   title,
   tasks,
   status,
+  readOnly = false,
 }: {
   title: string;
   tasks: Task[];
   status: Status;
+  readOnly?: boolean;
 }) {
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const projectId = useProjectStore((state) => state.activeProjectId);
@@ -34,6 +36,7 @@ export default function Column({
     newColumn: Status,
   ) => {
     e.preventDefault();
+    if (readOnly) return;
     const taskId = e.dataTransfer.getData("text/plain");
     setIsDraggingOver(false);
     updateTask(projectId!, taskId, { status: newColumn });
@@ -41,10 +44,10 @@ export default function Column({
 
   return (
     <div
-      onDragOver={(e) => dragOver(e)}
+      onDragOver={(e) => !readOnly && dragOver(e)}
       onDragLeave={(e) => dragLeave(e)}
       onDrop={(e) => onDropTask(e, status)}
-      className={`flex-none w-[242px] shrink-0 rounded border border-neon-cyan/10 p-2 bg-cyber-bg/20 font-mono flex flex-col ${isDraggingOver ? "border-neon-cyan/70" : ""}`}
+      className={`flex-none w-[240px] shrink-0 rounded border border-neon-cyan/10 p-2 bg-cyber-bg/20 font-mono flex flex-col ${isDraggingOver ? "border-neon-cyan/70" : ""}`}
     >
       {/* Column header with total items counter */}
       <div className="flex items-center justify-between mb-4 border-b border-neon-cyan/10 pb-2 px-1">
@@ -61,7 +64,9 @@ export default function Column({
       {/* Task list container */}
       <div className="flex flex-col flex-1 gap-3 max-h-[60vh] overflow-y-auto pr-1">
         {tasks.length > 0 ? (
-          tasks.map((t) => <TaskCard key={t.id || t._id || ""} task={t} />)
+          tasks.map((t) => (
+            <TaskCard key={t.id || t._id || ""} task={t} readOnly={readOnly} />
+          ))
         ) : (
           /* Clean visual empty state */
           <div className="h-24 border border-dashed border-white/5 rounded flex items-center justify-center text-[10px] bg-black text-white/30 uppercase tracking-widest">

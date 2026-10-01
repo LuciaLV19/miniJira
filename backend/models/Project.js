@@ -28,6 +28,20 @@ const projectSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    memberPermissions: [
+      {
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        permission: {
+          type: String,
+          enum: ["edit", "view"],
+          default: "edit",
+        },
+      },
+    ],
     pendingInvitations: [
       {
         email: {
@@ -41,6 +55,11 @@ const projectSchema = new mongoose.Schema(
           enum: ["pending", "accepted"],
           default: "pending",
         },
+        permission: {
+          type: String,
+          enum: ["edit", "view"],
+          default: "edit",
+        },
         invitedBy: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "User",
@@ -49,6 +68,7 @@ const projectSchema = new mongoose.Schema(
           type: Date,
           default: Date.now,
         },
+        acceptedAt: Date,
       },
     ],
   },

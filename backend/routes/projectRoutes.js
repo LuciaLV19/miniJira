@@ -5,6 +5,7 @@ import {
   updateProjectSchema,
 } from "../schemas/projectSchema.js";
 import { protect } from "../middleware/authMiddleware.js";
+import { requireProjectPermission } from "../middleware/projectAccess.js";
 import taskRoutes from "./taskRoutes.js";
 
 import {
@@ -15,6 +16,7 @@ import {
   getProjectMembers,
   inviteMember,
   acceptProjectInvitation,
+  leaveProject,
 } from "../controllers/projectController.js";
 
 const router = express.Router();
@@ -31,10 +33,16 @@ router
 
 router
   .route("/:projectId/members")
-  .get(protect, getProjectMembers)
+  .get(protect, requireProjectPermission("view"), getProjectMembers)
   .post(protect, inviteMember);
 
 router.post("/:projectId/members/accept", protect, acceptProjectInvitation);
+router.delete("/:projectId/members/leave", protect, leaveProject);
 
-router.use("/:projectId/tasks", taskRoutes);
+router.use(
+  "/:projectId/tasks",
+  protect,
+  requireProjectPermission("view"),
+  taskRoutes,
+);
 export default router;

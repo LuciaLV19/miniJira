@@ -3,8 +3,14 @@ import type { Task } from "./Task";
 export type PendingInvitation = {
   email: string;
   status?: "pending" | "accepted";
+  permission?: "edit" | "view";
   invitedBy?: string;
   invitedAt?: string;
+};
+
+export type MemberPermission = {
+  user: string | ProjectMember;
+  permission: "edit" | "view";
 };
 
 export type ProjectMember = {
@@ -12,6 +18,7 @@ export type ProjectMember = {
   id?: string;
   username?: string;
   email?: string;
+  permission?: "edit" | "view";
 };
 
 export type Project = {
@@ -25,6 +32,7 @@ export type Project = {
   tasks: Task[];
   createdBy?: ProjectMember | string;
   members?: Array<ProjectMember | string>;
+  memberPermissions?: MemberPermission[];
   pendingInvitations?: PendingInvitation[];
 };
 

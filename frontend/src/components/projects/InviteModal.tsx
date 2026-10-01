@@ -14,10 +14,12 @@ interface InviteModalProps {
     id?: string;
     username?: string;
     email?: string;
+    permission?: "edit" | "view";
   }>;
   pendingInvitations?: Array<{
     email: string;
     status?: "pending" | "accepted";
+    permission?: "edit" | "view";
   }>;
 }
 
@@ -31,6 +33,7 @@ export const InviteModal = ({
   pendingInvitations = [],
 }: InviteModalProps) => {
   const [email, setEmail] = useState("");
+  const [permission, setPermission] = useState<"edit" | "view">("edit");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -55,7 +58,11 @@ export const InviteModal = ({
     setSuccessMessage(null);
 
     try {
-      const response = await inviteMemberApi(projectId, normalizedEmail);
+      const response = await inviteMemberApi(
+        projectId,
+        normalizedEmail,
+        permission,
+      );
       const invitationEmail = response.invitation?.email || normalizedEmail;
       const invitationText =
         response.invitation?.status === "pending"
@@ -85,6 +92,7 @@ export const InviteModal = ({
     setError(null);
     setSuccessMessage(null);
     setEmail("");
+    setPermission("edit");
     onClose();
   };
 
@@ -133,6 +141,26 @@ export const InviteModal = ({
             />
           </div>
 
+          <div>
+            <label
+              className="text-xs font-mono text-cyan-300 block mb-1"
+              htmlFor="invite-permission"
+            >
+              PROJECT_ACCESS
+            </label>
+            <select
+              id="invite-permission"
+              value={permission}
+              onChange={(event) =>
+                setPermission(event.target.value as "edit" | "view")
+              }
+              className="w-full bg-[#111622] border border-cyan-900/50 rounded p-2.5 text-sm text-cyan-100 focus:border-cyan-400 focus:outline-none transition-colors"
+            >
+              <option value="edit">Can edit</option>
+              <option value="view">View only</option>
+            </select>
+          </div>
+
           <div className="grid gap-3 md:grid-cols-2">
             <div className="rounded border border-emerald-500/20 bg-emerald-500/5 p-3">
               <p className="mb-2 text-[9px] uppercase tracking-[0.2em] text-emerald-300">
@@ -153,6 +181,11 @@ export const InviteModal = ({
                           {member.email}
                         </p>
                       )}
+                      <p className="text-[9px] text-emerald-200/70">
+                        {member.permission === "view"
+                          ? "View only"
+                          : "Can edit"}
+                      </p>
                     </div>
                   ))
                 ) : (
@@ -178,7 +211,10 @@ export const InviteModal = ({
                           {invitation.email}
                         </p>
                         <p className="text-[9px] text-amber-200/80">
-                          Awaiting response
+                          {invitation.permission === "view"
+                            ? "View only"
+                            : "Can edit"}{" "}
+                          · Awaiting response
                         </p>
                       </div>
                     ))

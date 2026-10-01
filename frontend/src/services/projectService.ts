@@ -20,6 +20,10 @@ export const deleteProjectApi = async (id: string): Promise<void> => {
   await api.delete(`/projects/${id}`);
 };
 
+export const leaveProjectApi = async (projectId: string): Promise<void> => {
+  await api.delete(`/projects/${projectId}/members/leave`);
+};
+
 export const updateProjectApi = async (projectId: string, data: Partial<Project>): Promise<void> => {
   await api.put(`/projects/${projectId}`, data);
 };
@@ -60,8 +64,9 @@ export const getProjectMembersApi = async (projectId: string): Promise<{_id: str
 export const inviteMemberApi = async (
   projectId: string,
   email: string,
-): Promise<{ message: string; invitation?: { email: string; status?: "pending" | "accepted" } }> => {
-  const response = await api.post(`/projects/${projectId}/members`, { email });
+  permission: "edit" | "view" = "edit",
+): Promise<{ message: string; invitation?: { email: string; status?: "pending" | "accepted"; permission?: "edit" | "view" } }> => {
+  const response = await api.post(`/projects/${projectId}/members`, { email, permission });
   return response.data;
 }
 

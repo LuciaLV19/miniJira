@@ -6,6 +6,7 @@ import TaskBoard from "../tasks/TaskBoard";
 import { ListPlus, UsersRound } from "lucide-react";
 import { InviteModal } from "../projects/InviteModal";
 import type { ProjectMember } from "../../types/Project";
+import { useAuthStore } from "../../store/useAuthStore";
 
 const isProjectMember = (
   member: ProjectMember | string | null | undefined,
@@ -27,6 +28,7 @@ function ProjectView() {
   } = useProjectStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const currentUserId = useAuthStore((state) => state.user?._id);
 
   const projectSelected = projects.find(
     (project) => project.id === (routeProjectId || activeProjectId),
@@ -59,6 +61,13 @@ function ProjectView() {
   }
 
   const totalTasksCount = projectSelected.tasks?.length || 0;
+  const referenceId = (reference: ProjectMember | string | undefined) =>
+    typeof reference === "string" ? reference : reference?._id || reference?.id;
+  const isOwner = referenceId(projectSelected.createdBy) === currentUserId;
+  const ownPermission = projectSelected.memberPermissions?.find(
+    (entry) => referenceId(entry.user) === currentUserId,
+  )?.permission;
+  const canEdit = isOwner || ownPermission !== "view";
   const activeMembers = (projectSelected.members || [])
     .filter(isProjectMember)
     .filter(
@@ -73,6 +82,10 @@ function ProjectView() {
       id: member._id || member.id || member.email || "",
       email: member.email || "",
       username: member.username || member.email || "Project member",
+      permission:
+        projectSelected.memberPermissions?.find(
+          (entry) => referenceId(entry.user) === (member._id || member.id),
+        )?.permission || "edit",
     }))
     .filter((member) => member.email || member.username);
   const pendingInvitations = projectSelected.pendingInvitations || [];
@@ -101,7 +114,7 @@ function ProjectView() {
     return (
       <>
         {/* Invite Member Modal */}
-        {isInviteModalOpen && projectSelected?.id && (
+        {isInviteModalOpen && isOwner && projectSelected?.id && (
           <InviteModal
             projectId={projectSelected.id}
             onClose={() => setIsInviteModalOpen(false)}
@@ -115,7 +128,7 @@ function ProjectView() {
           />
         )}
         {/* Create/Edit Task Modal */}
-        {isOpenModalTask && (
+        {canEdit && isOpenModalTask && (
           <CreateTaskModal key={taskToEdit?.id || "new-task"} />
         )}
 
@@ -158,25 +171,29 @@ function ProjectView() {
                   </span>
                 </div>
 
-                <button
-                  onClick={() => setIsInviteModalOpen(true)}
-                  aria-label="Invite member"
-                  title="Invite member"
-                  className="flex shrink-0 items-center gap-1.5 rounded border border-neon-cyan/30 px-2.5 py-1.5 text-[9px] font-mono font-bold uppercase text-neon-cyan/80 transition-colors hover:border-neon-cyan hover:bg-neon-cyan/10 hover:text-neon-cyan cursor-pointer whitespace-nowrap"
-                >
-                  <UsersRound className="h-3.5 w-3.5" aria-hidden="true" />
-                  <span className="hidden sm:inline">Invite</span>
-                </button>
+                {isOwner && (
+                  <button
+                    onClick={() => setIsInviteModalOpen(true)}
+                    aria-label="Invite member"
+                    title="Invite member"
+                    className="flex shrink-0 items-center gap-1.5 rounded border border-neon-cyan/30 px-2.5 py-1.5 text-[9px] font-mono font-bold uppercase text-neon-cyan/80 transition-colors hover:border-neon-cyan hover:bg-neon-cyan/10 hover:text-neon-cyan cursor-pointer whitespace-nowrap"
+                  >
+                    <UsersRound className="h-3.5 w-3.5" aria-hidden="true" />
+                    <span className="hidden sm:inline">Invite</span>
+                  </button>
+                )}
 
-                <button
-                  onClick={openTaskModal}
-                  aria-label="Create new task"
-                  title="Create new task"
-                  className="flex shrink-0 items-center gap-1.5 rounded bg-neon-magenta px-2.5 py-1.5 text-[9px] font-mono font-bold uppercase text-black transition-colors hover:bg-neon-magenta/80 cursor-pointer whitespace-nowrap"
-                >
-                  <ListPlus className="h-3.5 w-3.5" aria-hidden="true" />
-                  <span className="hidden sm:inline">New task</span>
-                </button>
+                {canEdit && (
+                  <button
+                    onClick={openTaskModal}
+                    aria-label="Create new task"
+                    title="Create new task"
+                    className="flex shrink-0 items-center gap-1.5 rounded bg-neon-magenta px-2.5 py-1.5 text-[9px] font-mono font-bold uppercase text-black transition-colors hover:bg-neon-magenta/80 cursor-pointer whitespace-nowrap"
+                  >
+                    <ListPlus className="h-3.5 w-3.5" aria-hidden="true" />
+                    <span className="hidden sm:inline">New task</span>
+                  </button>
+                )}
               </div>
             </header>
 
@@ -207,7 +224,7 @@ function ProjectView() {
 
           {/* Task Board Column View */}
           <div className="max-w-7xl mx-auto w-full overflow-x-auto pt-6">
-            <TaskBoard tasks={filteredTasks} />
+            <TaskBoard tasks={filteredTasks} readOnly={!canEdit} />
           </div>
         </main>
       </>

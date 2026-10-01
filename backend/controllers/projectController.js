@@ -14,6 +14,7 @@ export const getProjects = async (req, res, next) => {
       ? projectQuery.populate([
           { path: "createdBy", select: "_id username email" },
           { path: "members", select: "_id username email" },
+          { path: "memberPermissions.user", select: "_id" },
           {
             path: "tasks",
             populate: { path: "assignedTo", select: "_id username email" },
@@ -112,9 +113,47 @@ export const deleteProject = async (req, res, next) => {
     next(error);
   }
 };
+
+export const leaveProject = async (req, res, next) => {
+  try {
+    const project = await Project.findById(req.params.projectId);
+
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    if (project.createdBy.toString() === req.user._id.toString()) {
+      return res
+        .status(403)
+        .json({ message: "The project owner cannot leave the project" });
+    }
+
+    const memberIndex = (project.members || []).findIndex(
+      (member) => (member._id || member).toString() === req.user._id.toString(),
+    );
+    if (memberIndex === -1) {
+      return res
+        .status(404)
+        .json({ message: "You are not a member of this project" });
+    }
+
+    project.members.splice(memberIndex, 1);
+    project.memberPermissions = (project.memberPermissions || []).filter(
+      (entry) =>
+        (entry.user?._id || entry.user)?.toString() !== req.user._id.toString(),
+    );
+    await project.save();
+
+    return res.json({ message: "You left the project successfully" });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 export const inviteMember = async (req, res) => {
   const { projectId } = req.params;
   const email = req.body?.email?.trim().toLowerCase();
+  const permission = req.body?.permission === "view" ? "view" : "edit";
 
   try {
     const project = await Project.findById(projectId);
@@ -165,6 +204,7 @@ export const inviteMember = async (req, res) => {
         invitation: {
           email,
           status: "pending",
+          permission,
         },
       });
     }
@@ -176,6 +216,7 @@ export const inviteMember = async (req, res) => {
     const newInvitation = {
       email,
       status: "pending",
+      permission,
       invitedBy: req.user._id,
       invitedAt: new Date(),
     };
@@ -210,6 +251,7 @@ export const inviteMember = async (req, res) => {
       invitation: {
         email: newInvitation.email,
         status: newInvitation.status,
+        permission: newInvitation.permission,
       },
       user: userToInvite
         ? {
@@ -260,6 +302,17 @@ export const acceptProjectInvitation = async (req, res) => {
     );
 
     if (alreadyMember) {
+      const memberPermission = (project.memberPermissions || []).find(
+        (entry) => entry.user?.toString() === user._id.toString(),
+      );
+      if (!memberPermission) {
+        project.memberPermissions = project.memberPermissions || [];
+        project.memberPermissions.push({
+          user: user._id,
+          permission:
+            project.pendingInvitations[invitationIndex].permission || "edit",
+        });
+      }
       project.pendingInvitations[invitationIndex].status = "accepted";
       project.pendingInvitations[invitationIndex].acceptedAt = new Date();
       await project.save();
@@ -271,6 +324,12 @@ export const acceptProjectInvitation = async (req, res) => {
     }
 
     project.members.push(user._id);
+    project.memberPermissions = project.memberPermissions || [];
+    project.memberPermissions.push({
+      user: user._id,
+      permission:
+        project.pendingInvitations[invitationIndex].permission || "edit",
+    });
     project.pendingInvitations[invitationIndex].status = "accepted";
     project.pendingInvitations[invitationIndex].acceptedAt = new Date();
     await project.save();
@@ -295,10 +354,9 @@ export const getProjectMembers = async (req, res) => {
   const { projectId } = req.params;
 
   try {
-    const project = await Project.findById(projectId).populate(
-      "members",
-      "_id username email",
-    );
+    const project = await Project.findById(projectId)
+      .populate("members", "_id username email")
+      .populate("memberPermissions.user", "_id username email");
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
     }
@@ -306,7 +364,19 @@ export const getProjectMembers = async (req, res) => {
     const owner = await User.findById(project.createdBy).select(
       "_id username email",
     );
-    const members = [owner, ...project.members].filter(Boolean);
+    const members = [owner, ...project.members]
+      .filter(Boolean)
+      .map((member) => {
+        const permissionEntry = (project.memberPermissions || []).find(
+          (entry) =>
+            (entry.user?._id || entry.user)?.toString() ===
+            member._id.toString(),
+        );
+        return {
+          ...member.toObject(),
+          permission: permissionEntry?.permission || "edit",
+        };
+      });
     res.json(
       members.filter(
         (member, index, allMembers) =>

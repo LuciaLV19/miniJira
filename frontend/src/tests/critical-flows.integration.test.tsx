@@ -155,12 +155,14 @@ describe("critical user flows", () => {
       screen.getByPlaceholderText("colleague@example.com"),
       "Teammate@Example.com",
     );
+    await user.selectOptions(screen.getByLabelText("PROJECT_ACCESS"), "view");
     await user.click(screen.getByRole("button", { name: /send_invite/i }));
 
     await waitFor(() => {
       expect(projectService.inviteMemberApi).toHaveBeenCalledWith(
         "p-1",
         "teammate@example.com",
+        "view",
       );
     });
     expect(

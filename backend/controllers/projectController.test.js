@@ -195,7 +195,14 @@ describe("projectController", () => {
       const project = {
         _id: "proj-123",
         members: [],
-        pendingInvitations: [{ email: "nuevo@correo.com", status: "pending" }],
+        memberPermissions: [],
+        pendingInvitations: [
+          {
+            email: "nuevo@correo.com",
+            status: "pending",
+            permission: "view",
+          },
+        ],
         save: vi.fn().mockResolvedValue(true),
       };
 
@@ -205,6 +212,10 @@ describe("projectController", () => {
       await projectController.acceptProjectInvitation(req, res);
 
       expect(project.members).toContain("user-456");
+      expect(project.memberPermissions).toContainEqual({
+        user: "user-456",
+        permission: "view",
+      });
       expect(project.pendingInvitations[0].status).toBe("accepted");
       expect(project.save).toHaveBeenCalledOnce();
       expect(res.json).toHaveBeenCalledWith(
@@ -212,6 +223,33 @@ describe("projectController", () => {
           message: expect.stringContaining("Invitation accepted successfully"),
         }),
       );
+    });
+  });
+
+  describe("leaveProject", () => {
+    it("removes a member and their permission without deleting the project", async () => {
+      req.params = { projectId: "proj-123" };
+      const project = {
+        createdBy: "owner-1",
+        members: ["user-123", "user-456"],
+        memberPermissions: [
+          { user: "user-123", permission: "view" },
+          { user: "user-456", permission: "edit" },
+        ],
+        save: vi.fn().mockResolvedValue(true),
+      };
+      vi.mocked(Project.findById).mockResolvedValue(project);
+
+      await projectController.leaveProject(req, res, next);
+
+      expect(project.members).toEqual(["user-456"]);
+      expect(project.memberPermissions).toEqual([
+        { user: "user-456", permission: "edit" },
+      ]);
+      expect(project.save).toHaveBeenCalledOnce();
+      expect(res.json).toHaveBeenCalledWith({
+        message: "You left the project successfully",
+      });
     });
   });
 });

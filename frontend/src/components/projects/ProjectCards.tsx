@@ -1,6 +1,7 @@
 import swal from "sweetalert2";
 import { useProjectStore } from "../../store/useProjectStore";
 import type { Project } from "../../types/Project";
+import { useAuthStore } from "../../store/useAuthStore";
 
 export default function ProjectCards({ project }: { project: Project }) {
   // Zustand Store Actions & State
@@ -8,6 +9,7 @@ export default function ProjectCards({ project }: { project: Project }) {
     (state) => state.toggleFavoriteProject,
   );
   const deleteProject = useProjectStore((state) => state.deleteProject);
+  const leaveProject = useProjectStore((state) => state.leaveProject);
   const editProject = useProjectStore((state) => state.editProject);
   const setActiveProjectId = useProjectStore(
     (state) => state.setActiveProjectId,
@@ -16,6 +18,12 @@ export default function ProjectCards({ project }: { project: Project }) {
   const projectTasks = project.tasks;
   const isActive =
     projectId === useProjectStore((state) => state.activeProjectId);
+  const currentUserId = useAuthStore((state) => state.user?._id);
+  const ownerId =
+    typeof project.createdBy === "string"
+      ? project.createdBy
+      : project.createdBy?._id || project.createdBy?.id;
+  const isOwner = Boolean(currentUserId && ownerId === currentUserId);
 
   // Task filtering and completion metrics calculation
   const doneTasks = projectTasks.filter((t) => t.status === "COMPILED").length;
@@ -32,11 +40,13 @@ export default function ProjectCards({ project }: { project: Project }) {
   const handleAbortProject = async (e: React.MouseEvent) => {
     e.stopPropagation();
     const result = await swal.fire({
-      title: "VERIFYING_CREDENTIALS",
-      text: ` Are you sure you want to purge the project [${project.name}]?`,
+      title: isOwner ? "VERIFYING_CREDENTIALS" : "LEAVING_PROJECT",
+      text: isOwner
+        ? ` Are you sure you want to purge the project [${project.name}]?`
+        : `Are you sure you want to leave the project [${project.name}]?`,
       showCancelButton: true,
-      confirmButtonText: "YES, DELETE",
-      cancelButtonText: "CANCEL",
+      confirmButtonText: isOwner ? "YES, DELETE" : "SÍ, ABANDONAR",
+      cancelButtonText: "CANCELAR",
       buttonsStyling: false,
       customClass: {
         popup:
@@ -51,7 +61,11 @@ export default function ProjectCards({ project }: { project: Project }) {
       },
     });
     if (result.isConfirmed && projectId) {
-      deleteProject(projectId);
+      if (isOwner) {
+        deleteProject(projectId);
+      } else {
+        leaveProject(projectId);
+      }
     }
   };
 
@@ -137,22 +151,24 @@ export default function ProjectCards({ project }: { project: Project }) {
 
         {/* Action Controls: visible on mobile and hover-revealed on desktop */}
         <div className="flex justify-end gap-3 mt-2 pt-1 border-t border-white/5 opacity-100 transition-opacity duration-200 md:opacity-0 md:group-hover:opacity-100">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              editProject(project);
-            }}
-            className="text-[9px] font-mono text-neon-cyan/60 hover:text-neon-cyan cursor-pointer uppercase tracking-tighter"
-          >
-            [edit]
-          </button>
+          {isOwner && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                editProject(project);
+              }}
+              className="text-[9px] font-mono text-neon-cyan/60 hover:text-neon-cyan cursor-pointer uppercase tracking-tighter"
+            >
+              [edit]
+            </button>
+          )}
           <button
             onClick={(e) => {
               handleAbortProject(e);
             }}
             className="text-[9px] font-mono text-neon-magenta/60 hover:text-neon-magenta cursor-pointer uppercase tracking-tighter"
           >
-            [abort]
+            {isOwner ? "[abort]" : "[exit]"}
           </button>
         </div>
       </div>

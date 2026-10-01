@@ -26,14 +26,25 @@ const app = express();
 const allowedOrigins = [process.env.CLIENT_URL, "http://localhost:5173"].filter(
   Boolean,
 );
+const isLocalDevelopmentOrigin = (origin) => {
+  try {
+    const url = new URL(origin);
+    return (
+      url.protocol === "http:" &&
+      ["localhost", "127.0.0.1"].includes(url.hostname)
+    );
+  } catch {
+    return false;
+  }
+};
 // Middleware
 app.use(
   cors({
     origin: (origin, callback) => {
       if (
         !origin ||
-        origin === process.env.CLIENT_URL ||
-        origin === "http://localhost:5173" ||
+        allowedOrigins.includes(origin) ||
+        isLocalDevelopmentOrigin(origin) ||
         origin.endsWith(".vercel.app")
       ) {
         callback(null, true);

@@ -47,6 +47,7 @@ interface ProjectState {
   // Project management actions
   createProject: (name: string, description: string) => Promise<void>;
   deleteProject: (id: string) => Promise<void>;
+  leaveProject: (id: string) => Promise<void>;
   updateProject: (projectId: string, data: Partial<Project>) => Promise<void>;
   editProject: (project: Project) => void;
   toggleFavoriteProject: (id: string) => void;
@@ -151,6 +152,21 @@ export const useProjectStore = create<ProjectState>()(
           toast.error("[SYSTEM_LOG: PROJECT_DELETED_FAILED]", {
             description: "The project could not be deleted.",
           });
+        }
+      },
+
+      leaveProject: async (id) => {
+        try {
+          await projectApi.leaveProjectApi(id);
+          set((state) => ({
+            projects: state.projects.filter((project) => project.id !== id),
+            activeProjectId:
+              state.activeProjectId === id ? undefined : state.activeProjectId,
+          }));
+          toast.success("You have left the project.");
+        } catch (error: unknown) {
+          console.error("Error leaving project:", error);
+          toast.error("Failed to leave the project.");
         }
       },
 
