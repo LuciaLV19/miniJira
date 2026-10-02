@@ -11,7 +11,7 @@ import { updateUserSchema } from "../schemas/userSchema.js";
 const router = express.Router();
 
 router
-  .route("/profile")
+  .route("/")
   .get(protect, getUser)
   .put(protect, validate(updateUserSchema), updateUser);
 

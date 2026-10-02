@@ -1,3 +1,4 @@
+import type { User } from "./User";
 export type Priority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
 export type Status = "BACKLOG" | "TODO" |"IN_PROGRESS" | "TESTING" | "COMPILED";
 export type Task = {
@@ -11,10 +12,6 @@ export type Task = {
   commentsCount: number;
   category?: string;
   dueDate?: string;
-  assignee?: {
-    id?: string;
-    _id?: string;
-    username: string;
-    email: string;
-  };
+  assignee?: User | string | null;
+  assignedTo?: User | string | null;
 };

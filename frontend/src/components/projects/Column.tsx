@@ -47,7 +47,7 @@ export default function Column({
       onDragOver={(e) => !readOnly && dragOver(e)}
       onDragLeave={(e) => dragLeave(e)}
       onDrop={(e) => onDropTask(e, status)}
-      className={`flex-none w-[240px] shrink-0 rounded border border-neon-cyan/10 p-2 bg-cyber-bg/20 font-mono flex flex-col ${isDraggingOver ? "border-neon-cyan/70" : ""}`}
+      className={`flex-none w-59 shrink-0 rounded border border-neon-cyan/10 p-2 bg-cyber-bg/20 font-mono flex flex-col ${isDraggingOver ? "border-neon-cyan/70" : ""}`}
     >
       {/* Column header with total items counter */}
       <div className="flex items-center justify-between mb-4 border-b border-neon-cyan/10 pb-2 px-1">

@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import type { Task, Priority } from "../../types/Task";
 import { useProjectStore } from "../../store/useProjectStore";
-import { useSettingsStore } from "../../store/useSettingsStore"; // Ajusta la ruta a tu store
+import { useSettingsStore } from "../../store/useSettingsStore";
+import type { User } from "../../types/User";
 
 /**
  * TaskCard component renders an individual task item within a Kanban column.
@@ -26,6 +27,10 @@ export default function TaskCard({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const rawUser = task.assignee || (task as Task).assignedTo;
+  const assignedUser =
+    typeof rawUser === "object" && rawUser !== null ? (rawUser as User) : null;
 
   // Dynamic styling based on task priority level
   const priorityColors: Record<Priority, string> = {
@@ -58,8 +63,12 @@ export default function TaskCard({
     e: React.DragEvent<HTMLDivElement>,
     taskId: string,
   ) => {
+    if (readOnly) {
+      e.preventDefault();
+      return;
+    }
     e.dataTransfer.setData("text/plain", taskId);
-    setTimeout(() => setIsDragging(true), 0);
+    setIsDragging(true);
   };
 
   const handleClickOutside = (e: MouseEvent) => {
@@ -80,7 +89,7 @@ export default function TaskCard({
       commentsCount: task.commentsCount,
       dueDate: task.dueDate,
       category: task.category,
-      assignee: task.assignee,
+      assignee: assignedUser,
     });
   };
 
@@ -207,11 +216,17 @@ export default function TaskCard({
               #{(task.id || task._id)?.slice(0, 4).toUpperCase()}
             </span>
 
-            {task.assignee ? (
+            {assignedUser ? (
               <div
                 className="h-5 w-5 rounded bg-neon-cyan/20 border border-neon-cyan text-neon-cyan flex items-center justify-center text-[9px] font-black shadow-sm"
-                title={task.assignee.username}
-              ></div>
+                title={
+                  assignedUser.username || assignedUser.name || "Unassigned"
+                }
+              >
+                {(assignedUser.username ||
+                  assignedUser.name ||
+                  "U")[0].toUpperCase()}
+              </div>
             ) : (
               <div
                 className="h-5 w-5 rounded border border-white/10 border-dashed flex items-center justify-center text-[9px] font-medium text-white/20"

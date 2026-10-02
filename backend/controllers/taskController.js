@@ -9,7 +9,7 @@ export const getTasks = async (req, res, next) => {
     const taskQuery = Task.find({ projectId });
     const populatedQuery = taskQuery?.populate
       ? taskQuery
-          .populate("assignedTo", "name email avatar")
+          .populate("assignedTo", "username email avatar")
           .populate("project", "name")
       : taskQuery;
     const sortedQuery = populatedQuery?.sort
@@ -108,13 +108,9 @@ export const updateTask = async (req, res, next) => {
       delete updateData.assignee;
     }
 
-    const updatedTask = await Task.findByIdAndUpdate(
-      req.params.taskId,
-      updateData,
-      {
-        new: true,
-      },
-    );
+    const updatedTask = await Task.findByIdAndUpdate(taskId, updateData, {
+      new: true,
+    });
 
     if (updatedTask.populate) {
       await updatedTask.populate("assignedTo", "_id username email");

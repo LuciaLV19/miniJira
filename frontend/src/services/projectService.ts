@@ -5,7 +5,6 @@ import type { CreateTaskInput } from "../store/useProjectStore";
 
 // --- Project API Requests ---
 
-
 export const fetchProjectsApi = async (): Promise<Project[]> => {
   const response = await api.get("/projects");
   return response.data;
@@ -34,7 +33,7 @@ export const createTaskApi = async (projectId: string, task: CreateTaskInput): P
   const { assignee, ...taskData } = task;
   const response = await api.post(`/projects/${projectId}/tasks`, {
     ...taskData,
-    assignedTo: assignee?._id || assignee?.id || null,
+    assignedTo: assignee?.username || null,
   });
   return response.data;
 };
@@ -43,12 +42,22 @@ export const deleteTaskApi = async (projectId: string, taskId: string): Promise<
   await api.delete(`/projects/${projectId}/tasks/${taskId}`);
 };
 
-export const updateTaskApi = async (projectId: string, taskId: string, data: Partial<Task>): Promise<Task> => {
-  const { assignee, ...taskData } = data;
+export const updateTaskApi = async (
+  projectId: string,
+  taskId: string,
+  data: Partial<Task>
+): Promise<Task> => {
+  const { assignedTo, ...taskData } = data;
+
+  const assignedToValue =
+    typeof assignedTo === "string"
+      ? assignedTo
+      : assignedTo?.username || null;
+
   const response = await api.put(`/projects/${projectId}/tasks/${taskId}`, {
     ...taskData,
-    ...(assignee !== undefined && {
-      assignedTo: assignee?._id || assignee?.id || null,
+    ...(assignedTo !== undefined && {
+      assignedTo: assignedToValue,
     }),
   });
   return response.data;
