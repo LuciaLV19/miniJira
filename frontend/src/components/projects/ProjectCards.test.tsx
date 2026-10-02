@@ -74,7 +74,7 @@ describe("ProjectCards", () => {
     await waitFor(() => {
       expect(swal.fire).toHaveBeenCalledWith(
         expect.objectContaining({
-          text: "¿Deseas abandonar el proyecto [Project Alpha]?",
+          text: "Are you sure you want to leave the project [Project Alpha]?",
         }),
       );
       expect(leaveProject).toHaveBeenCalledWith("project-1");
