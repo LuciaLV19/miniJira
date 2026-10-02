@@ -1,8 +1,34 @@
 import { useState, useEffect } from "react";
 import { useProjectStore } from "../../store/useProjectStore";
-import type { Priority } from "../../types/Task";
+import type { Priority, Task } from "../../types/Task";
 import { useParams } from "react-router-dom";
 import { getProjectMembersApi } from "../../services/projectService";
+
+type TaskAssignee = {
+  id?: string;
+  _id?: string;
+  username: string;
+  email: string;
+};
+
+const getAssigneeId = (assignee: Task["assignee"]) => {
+  if (!assignee) return "";
+  if (typeof assignee === "string") return assignee;
+  return assignee._id || assignee.id || "";
+};
+
+const normalizeAssignee = (assignee: Task["assignee"]): TaskAssignee | undefined => {
+  if (!assignee || typeof assignee === "string") return undefined;
+
+  const normalized: TaskAssignee = {
+    id: assignee.id || assignee._id,
+    _id: assignee._id || assignee.id,
+    username: assignee.username ?? "",
+    email: assignee.email ?? "",
+  };
+
+  return normalized.username || normalized.email ? normalized : undefined;
+};
 
 /**
  * Modal component responsible for creating new tasks or editing existing ones
@@ -35,33 +61,35 @@ export default function CreateTaskModal() {
   );
   const [taskCategory, setTaskCategory] = useState(taskToEdit?.category ?? "");
   const [taskDueDate, setTaskDueDate] = useState(taskToEdit?.dueDate ?? "");
-  const [taskAssignee, setTaskAssignee] = useState(taskToEdit?.assignee);
-  const [selectedAssigneeId, setSelectedAssigneeId] = useState(
-    taskToEdit?.assignee?._id || taskToEdit?.assignee?.id || "",
+  const [taskAssignee, setTaskAssignee] = useState<TaskAssignee | undefined>(() =>
+    normalizeAssignee(taskToEdit?.assignee),
+  );
+  const [selectedAssigneeId, setSelectedAssigneeId] = useState(() =>
+    getAssigneeId(taskToEdit?.assignee),
   );
 
-  useEffect(() => {
-    const assigneeId =
-      taskToEdit?.assignee?._id || taskToEdit?.assignee?.id || "";
-    setTaskAssignee(taskToEdit?.assignee ?? undefined);
-    setSelectedAssigneeId(assigneeId);
-  }, [taskToEdit]);
+  const modalKey = `${isEditMode ? taskId ?? "edit" : "new"}-${projectId ?? activeProjectId ?? "project"}`;
 
   useEffect(() => {
-    const fetchMembers = async () => {
-      if (projectId || isOpen) {
-        try {
-          const memberData = await getProjectMembersApi(
-            projectId || activeProjectId!,
-          );
-          setMembers(memberData);
-        } catch (err) {
+    const projectKey = projectId || activeProjectId;
+    if (!projectKey || !isOpen) return;
+
+    let cancelled = false;
+    const loadMembers = async () => {
+      try {
+        const memberData = await getProjectMembersApi(projectKey);
+        if (!cancelled) setMembers(memberData);
+      } catch (err) {
+        if (!cancelled) {
           console.error("Error fetching project members:", err);
         }
       }
     };
 
-    fetchMembers();
+    void loadMembers();
+    return () => {
+      cancelled = true;
+    };
   }, [projectId, isOpen, activeProjectId]);
 
   /**
@@ -113,6 +141,7 @@ export default function CreateTaskModal() {
 
   return (
     <div
+      key={modalKey}
       className={`fixed inset-0 z-50 flex items-center justify-center bg-black/70 transition-opacity ${
         isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
       }`}

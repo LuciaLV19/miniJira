@@ -98,13 +98,18 @@ function ProjectView() {
       const query = searchQuery.toLowerCase().trim();
       if (!query) return true;
 
+      const assigneeName =
+        typeof task.assignee === "object" && task.assignee !== null
+          ? task.assignee.username
+          : undefined;
+
       return [
         task.title,
         task.description,
         task.category,
         task.priority,
         task.status,
-        task.assignee?.username,
+        assigneeName,
       ]
         .filter(Boolean)
         .some((value) => value?.toString().toLowerCase().includes(query));
